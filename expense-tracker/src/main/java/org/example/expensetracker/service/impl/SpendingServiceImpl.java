@@ -1,5 +1,6 @@
 package org.example.expensetracker.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.expensetracker.entity.Spending;
 import org.example.expensetracker.entity.User;
 import org.example.expensetracker.model.exception.UserNotFoundException;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 
 @Service
+@Slf4j
 public class SpendingServiceImpl implements SpendingService {
     private final SpendingRepository spendingRepository;
     private final UserRepository userRepository;
@@ -23,8 +25,15 @@ public class SpendingServiceImpl implements SpendingService {
 
     @Override
     public void save(SpendingRequest spendingRequest) {
+        log.info("Saving new spending record for user ID: {}", spendingRequest.getUserId());
+
         User user = userRepository.findById(spendingRequest.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("User with id " + spendingRequest.getUserId() + " not found!"));
+                .orElseThrow(() -> {
+                    log.error("User with id {} not found", spendingRequest.getUserId());
+                    return new UserNotFoundException("User with id " + spendingRequest.getUserId() + " not found!");
+                });
+
+        log.debug("User with id {} found: {}", user.getId(), user.getUsername());
 
         Spending spending = new Spending(
                 spendingRequest.getTitle(),
@@ -36,5 +45,6 @@ public class SpendingServiceImpl implements SpendingService {
         );
 
         spendingRepository.save(spending);
+        log.info("Spending record saved successfully for user ID: {}", user.getId());
     }
 }
