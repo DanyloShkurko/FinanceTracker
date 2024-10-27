@@ -1,7 +1,6 @@
 package org.example.expensetracker.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +12,6 @@ import java.time.LocalDate;
 @Table(name = "spending_details")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class Spending {
     @Id
@@ -38,4 +36,13 @@ public class Spending {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+
+    public Spending(String title, String description, BigDecimal amount, String currency, LocalDate date, User user) {
+        this.title = title;
+        this.description = description;
+        this.amount = amount;
+        this.currency = currency;
+        this.date = date;
+        this.user = user;
+    }
 }
