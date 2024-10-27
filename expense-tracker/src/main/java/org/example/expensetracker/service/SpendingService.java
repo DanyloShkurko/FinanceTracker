@@ -8,4 +8,5 @@ import java.util.List;
 public interface SpendingService {
     void save(SpendingRequest spendingRequest);
     List<Spending> findAll();
+    List<Spending> findByUserId(long userId);
 }

@@ -36,4 +36,12 @@ public class SpendingController {
         log.info("Spending records found: {}", spendings);
         return ResponseEntity.ok(spendings);
     }
+
+    @GetMapping("/find")
+    public ResponseEntity<List<Spending>> findSpendingByUserId(@RequestParam("userId") long userId) {
+        log.info("Received request to find spending for user ID: {}", userId);
+        List<Spending> spendings = spendingService.findByUserId(userId);
+        log.info("Spending records found: {} \n by user id: {}", spendings, userId);
+        return ResponseEntity.ok(spendings);
+    }
 }
