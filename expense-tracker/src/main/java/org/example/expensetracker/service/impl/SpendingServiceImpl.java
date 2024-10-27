@@ -11,6 +11,7 @@ import org.example.expensetracker.service.SpendingService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -46,5 +47,11 @@ public class SpendingServiceImpl implements SpendingService {
 
         spendingRepository.save(spending);
         log.info("Spending record saved successfully for user ID: {}", user.getId());
+    }
+
+    @Override
+    public List<Spending> findAll() {
+        log.info("Finding all spending records...");
+        return spendingRepository.findAll();
     }
 }

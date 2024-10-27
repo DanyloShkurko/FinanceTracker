@@ -1,13 +1,13 @@
 package org.example.expensetracker.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.expensetracker.entity.Spending;
 import org.example.expensetracker.model.request.spending.SpendingRequest;
 import org.example.expensetracker.service.SpendingService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/expenses")
@@ -27,5 +27,13 @@ public class SpendingController {
 
         log.info("Spending record created successfully for user ID: {}", request.getUserId());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/findAll")
+    public ResponseEntity<List<Spending>> findAllSpendings() {
+        log.info("Received request to find all spending records.");
+        List<Spending> spendings = spendingService.findAll();
+        log.info("Spending records found: {}", spendings);
+        return ResponseEntity.ok(spendings);
     }
 }
