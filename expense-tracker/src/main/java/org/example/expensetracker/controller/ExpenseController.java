@@ -1,0 +1,47 @@
+package org.example.expensetracker.controller;
+
+import lombok.extern.slf4j.Slf4j;
+import org.example.expensetracker.entity.Expense;
+import org.example.expensetracker.model.request.expense.ExpenseRequest;
+import org.example.expensetracker.service.ExpenseService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/expenses")
+@Slf4j
+public class ExpenseController {
+    private final ExpenseService expenseService;
+
+    public ExpenseController(ExpenseService expenseService) {
+        this.expenseService = expenseService;
+    }
+
+    @PostMapping("/add")
+    public ResponseEntity<Void> createExpense(@RequestBody ExpenseRequest request) {
+        log.info("Received request to create expense for user ID: {}", request.getUserId());
+
+        expenseService.save(request);
+
+        log.info("Expense record created successfully for user ID: {}", request.getUserId());
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<List<Expense>> findAllExpenses() {
+        log.info("Received request to find all expenses records.");
+        List<Expense> expenses = expenseService.findAll();
+        log.info("Expense records found: {}", expenses);
+        return ResponseEntity.ok(expenses);
+    }
+
+    @GetMapping("/list/")
+    public ResponseEntity<List<Expense>> findExpenseByUserId(@RequestParam("userId") long userId) {
+        log.info("Received request to find expenses for user ID: {}", userId);
+        List<Expense> expenses = expenseService.findByUserId(userId);
+        log.info("Expense records found: {} \n by user id: {}", expenses, userId);
+        return ResponseEntity.ok(expenses);
+    }
+}

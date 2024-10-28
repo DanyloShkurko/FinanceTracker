@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Spending {
+public class Expense {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -37,7 +37,7 @@ public class Spending {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    public Spending(String title, String description, BigDecimal amount, String currency, LocalDate date, User user) {
+    public Expense(String title, String description, BigDecimal amount, String currency, LocalDate date, User user) {
         this.title = title;
         this.description = description;
         this.amount = amount;

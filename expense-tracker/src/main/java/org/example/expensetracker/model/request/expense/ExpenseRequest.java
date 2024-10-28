@@ -1,4 +1,4 @@
-package org.example.expensetracker.model.request.spending;
+package org.example.expensetracker.model.request.expense;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SpendingRequest {
+public class ExpenseRequest {
     private long id;
     private String title;
     private String description;
