@@ -1,6 +1,7 @@
 package org.example.expensetracker.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.expensetracker.entity.Category;
 import org.example.expensetracker.entity.Expense;
 import org.example.expensetracker.entity.User;
 import org.example.expensetracker.model.exception.UserNotFoundException;
@@ -54,6 +55,21 @@ public class ExpenseServiceImpl implements ExpenseService {
         log.info("Found {} expense records for user ID: {}", userExpenses.size(), userId);
         return userExpenses;
     }
+
+    @Override
+    public List<Expense> analyzeExpenses(LocalDate from, LocalDate to, Category category, long userId) {
+        log.info("Starting analysis of expenses for user ID: {} with date range from: {} to: {} and category: {}", userId, from, to, category);
+
+        List<Expense> expenses = findByUserId(userId).stream()
+                .filter(expense -> (from == null || (expense.getDate().isAfter(from)) || expense.getDate().isEqual(from)) &&
+                        (to == null || (expense.getDate().isBefore(to) || expense.getDate().isEqual(to))) &&
+                        (category == null || expense.getCategory().equals(category)))
+                .toList();
+
+        log.info("Found {} expenses for user ID: {} with date range from: {} to: {} and category: {}", expenses.size(), userId, from, to, category);
+        return expenses;
+    }
+
 
     private User validateUserExistence(long userId) {
         return userRepository.findById(userId)

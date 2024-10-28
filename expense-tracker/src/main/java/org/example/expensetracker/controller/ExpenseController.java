@@ -1,12 +1,14 @@
 package org.example.expensetracker.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.expensetracker.entity.Category;
 import org.example.expensetracker.entity.Expense;
 import org.example.expensetracker.model.request.expense.ExpenseRequest;
 import org.example.expensetracker.service.ExpenseService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -42,6 +44,17 @@ public class ExpenseController {
         log.info("Received request to find expenses for user ID: {}", userId);
         List<Expense> expenses = expenseService.findByUserId(userId);
         log.info("Expense records found: {} \n by user id: {}", expenses, userId);
+        return ResponseEntity.ok(expenses);
+    }
+
+    @GetMapping("/analyze")
+    public ResponseEntity<List<Expense>> analyzeExpenses(@RequestParam(value = "from", required = false) LocalDate from,
+                                                         @RequestParam(value = "to", required = false) LocalDate to,
+                                                         @RequestParam(value = "category", required = false) Category category,
+                                                         @RequestParam("userId") long userId) {
+        log.info("Received request to analyze expenses for user ID: {} with date range from: {} to: {}", userId, from, to);
+        List<Expense> expenses = expenseService.analyzeExpenses(from, to, category, userId);
+        log.info("Returning {} expenses for user ID: {} with date range from: {} to: {}", expenses.size(), userId, from, to);
         return ResponseEntity.ok(expenses);
     }
 }
