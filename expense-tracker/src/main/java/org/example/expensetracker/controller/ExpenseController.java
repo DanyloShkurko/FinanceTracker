@@ -37,7 +37,7 @@ public class ExpenseController {
         return ResponseEntity.ok(expenses);
     }
 
-    @GetMapping("/list/")
+    @GetMapping("/listUser")
     public ResponseEntity<List<Expense>> findExpenseByUserId(@RequestParam("userId") long userId) {
         log.info("Received request to find expenses for user ID: {}", userId);
         List<Expense> expenses = expenseService.findByUserId(userId);

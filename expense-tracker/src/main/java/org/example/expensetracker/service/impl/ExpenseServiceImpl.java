@@ -70,6 +70,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 request.getAmount(),
                 request.getCurrency(),
                 LocalDate.now(),
+                request.getCategory(),
                 user
         );
     }
