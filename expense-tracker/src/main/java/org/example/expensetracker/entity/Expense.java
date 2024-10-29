@@ -28,9 +28,6 @@ public class Expense {
     private BigDecimal amount;
 
     @Column
-    private String currency;
-
-    @Column
     private LocalDate date;
 
     @Column
@@ -41,11 +38,10 @@ public class Expense {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    public Expense(String title, String description, BigDecimal amount, String currency, LocalDate date, Category category, User user) {
+    public Expense(String title, String description, BigDecimal amount, LocalDate date, Category category, User user) {
         this.title = title;
         this.description = description;
         this.amount = amount;
-        this.currency = currency;
         this.date = date;
         this.category = category;
         this.user = user;

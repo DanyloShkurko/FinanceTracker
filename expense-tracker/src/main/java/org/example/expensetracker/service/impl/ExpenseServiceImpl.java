@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.expensetracker.entity.Category;
 import org.example.expensetracker.entity.Expense;
 import org.example.expensetracker.entity.User;
+import org.example.expensetracker.model.exception.ExpenseNotFoundException;
 import org.example.expensetracker.model.exception.UserNotFoundException;
 import org.example.expensetracker.model.request.expense.ExpenseRequest;
 import org.example.expensetracker.repository.ExpenseRepository;
@@ -70,6 +71,45 @@ public class ExpenseServiceImpl implements ExpenseService {
         return expenses;
     }
 
+    @Override
+    public void deleteByUserIdAndExpenseId(long userId, long expenseId) {
+        log.info("Attempting to delete expense with ID {} for user ID {}", expenseId, userId);
+
+        Expense expense = findExpenseByUserIdAndExpenseId(userId, expenseId);
+        expenseRepository.delete(expense);
+
+        log.info("Successfully deleted expense with ID {} for user ID {}", expenseId, userId);
+    }
+
+    @Override
+    public void updateByUserIdAndExpenseId(long userId, long expenseId, ExpenseRequest expenseRequest) {
+        log.info("Attempting to update expense with ID {} for user ID {}", expenseId, userId);
+
+        Expense expense = findExpenseByUserIdAndExpenseId(userId, expenseId);
+        updateExpenseDetails(expense, expenseRequest);
+        expenseRepository.save(expense);
+
+        log.info("Successfully updated expense with ID {} for user ID {}", expenseId, userId);
+    }
+
+    private Expense findExpenseByUserIdAndExpenseId(long userId, long expenseId) {
+        return findByUserId(userId).stream()
+                .filter(expense -> expense.getId() == expenseId)
+                .findFirst()
+                .orElseThrow(() -> {
+                    log.error("Expense with ID {} not found for user ID {}", expenseId, userId);
+                    return new ExpenseNotFoundException("Expense with id " + expenseId + " not found!");
+                });
+    }
+
+    private void updateExpenseDetails(Expense expense, ExpenseRequest expenseRequest) {
+        expense.setTitle(expenseRequest.getTitle());
+        expense.setDescription(expenseRequest.getDescription());
+        expense.setAmount(expenseRequest.getAmount());
+        expense.setCategory(expenseRequest.getCategory());
+        expense.setDate(expenseRequest.getDate() == null ? expense.getDate() : expenseRequest.getDate());
+    }
+
 
     private User validateUserExistence(long userId) {
         return userRepository.findById(userId)
@@ -84,7 +124,6 @@ public class ExpenseServiceImpl implements ExpenseService {
                 request.getTitle(),
                 request.getDescription(),
                 request.getAmount(),
-                request.getCurrency(),
                 LocalDate.now(),
                 request.getCategory(),
                 user

@@ -12,4 +12,6 @@ public interface ExpenseService {
     List<Expense> findAll();
     List<Expense> findByUserId(long userId);
     List<Expense> analyzeExpenses(LocalDate from, LocalDate to, Category category, long userId);
+    void deleteByUserIdAndExpenseId(long userId, long expenseId);
+    void updateByUserIdAndExpenseId(long userId, long expenseId, ExpenseRequest expenseRequest);
 }

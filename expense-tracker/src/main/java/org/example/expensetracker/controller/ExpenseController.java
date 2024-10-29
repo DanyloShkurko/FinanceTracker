@@ -24,9 +24,7 @@ public class ExpenseController {
     @PostMapping("/add")
     public ResponseEntity<Void> createExpense(@RequestBody ExpenseRequest request) {
         log.info("Received request to create expense for user ID: {}", request.getUserId());
-
         expenseService.save(request);
-
         log.info("Expense record created successfully for user ID: {}", request.getUserId());
         return ResponseEntity.ok().build();
     }
@@ -56,5 +54,24 @@ public class ExpenseController {
         List<Expense> expenses = expenseService.analyzeExpenses(from, to, category, userId);
         log.info("Returning {} expenses for user ID: {} with date range from: {} to: {}", expenses.size(), userId, from, to);
         return ResponseEntity.ok(expenses);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> deleteExpense(@RequestParam("userId") long userId,
+                                              @RequestParam("expenseId") long expenseId) {
+        log.info("Received request to delete expense for user ID: {} with expense ID: {}", userId, expenseId);
+        expenseService.deleteByUserIdAndExpenseId(userId, expenseId);
+        log.info("Expense record deleted successfully for user ID: {}", userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<Void> updateExpense(@RequestParam("userId") long userId,
+                                              @RequestParam("expenseId") long expenseId,
+                                              @RequestBody ExpenseRequest request) {
+        log.info("Received request to update expense for user ID: {} with expense ID: {}", userId, expenseId);
+        expenseService.updateByUserIdAndExpenseId(userId, expenseId, request);
+        log.info("Expense record updated successfully for user ID: {}", userId);
+        return ResponseEntity.ok().build();
     }
 }

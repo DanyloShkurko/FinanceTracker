@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.example.expensetracker.entity.Category;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -17,7 +18,7 @@ public class ExpenseRequest {
     private String title;
     private String description;
     private BigDecimal amount;
-    private String currency;
+    private LocalDate date;
     private Category category;
     private long userId;
 }
