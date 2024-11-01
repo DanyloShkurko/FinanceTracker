@@ -14,4 +14,5 @@ public interface ExpenseService {
     List<Expense> analyzeExpenses(LocalDate from, LocalDate to, Category category, long userId);
     void deleteByUserIdAndExpenseId(long userId, long expenseId);
     void updateByUserIdAndExpenseId(long userId, long expenseId, ExpenseRequest expenseRequest);
+
 }

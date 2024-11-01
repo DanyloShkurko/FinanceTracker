@@ -41,7 +41,10 @@ public class Limit {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    public Limit(Category category, LocalDate startDate, LocalDate endDate, User user) {
+    public Limit(BigDecimal limitAmount, BigDecimal currentSpent, boolean isExceeded, Category category, LocalDate startDate, LocalDate endDate, User user) {
+        this.limitAmount = limitAmount;
+        this.currentSpent = currentSpent;
+        this.isExceeded = isExceeded;
         this.category = category;
         this.startDate = startDate;
         this.endDate = endDate;

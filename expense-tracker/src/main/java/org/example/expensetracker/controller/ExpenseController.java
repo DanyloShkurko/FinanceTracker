@@ -4,7 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.expensetracker.entity.Category;
 import org.example.expensetracker.entity.Expense;
 import org.example.expensetracker.model.request.expense.ExpenseRequest;
+import org.example.expensetracker.model.request.limit.LimitRequest;
 import org.example.expensetracker.service.ExpenseService;
+import org.example.expensetracker.service.LimitService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,9 +18,11 @@ import java.util.List;
 @Slf4j
 public class ExpenseController {
     private final ExpenseService expenseService;
+    private final LimitService limitService;
 
-    public ExpenseController(ExpenseService expenseService) {
+    public ExpenseController(ExpenseService expenseService, LimitService limitService) {
         this.expenseService = expenseService;
+        this.limitService = limitService;
     }
 
     @PostMapping("/add")
@@ -72,6 +76,14 @@ public class ExpenseController {
         log.info("Received request to update expense for user ID: {} with expense ID: {}", userId, expenseId);
         expenseService.updateByUserIdAndExpenseId(userId, expenseId, request);
         log.info("Expense record updated successfully for user ID: {}", userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/limit")
+    public ResponseEntity<Void> createLimit(@RequestBody LimitRequest request) {
+        log.info("Received request to limit expense for user ID: {}", request.getUserId());
+        limitService.createLimit(request);
+        log.info("Limit record created successfully for user ID: {}", request.getUserId());
         return ResponseEntity.ok().build();
     }
 }
