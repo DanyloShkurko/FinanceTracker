@@ -5,6 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -17,7 +18,7 @@ public class ApplicationConfig {
     private final UserService userService;
 
     @Autowired
-    public ApplicationConfig(UserService userService) {
+    public ApplicationConfig(@Lazy UserService userService) {
         this.userService = userService;
     }
 
