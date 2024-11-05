@@ -3,6 +3,7 @@ package com.example.user_service.controller;
 import com.example.user_service.model.request.UserUpdateRequest;
 import com.example.user_service.model.response.UserResponse;
 import com.example.user_service.service.UserService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,7 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Void> updateUser(@RequestBody UserUpdateRequest userUpdateRequest) {
+    public ResponseEntity<Void> updateUser(@RequestBody @Valid UserUpdateRequest userUpdateRequest) {
         String username = getAuthentication().getName();
         log.info("Received update request for username: {}", username);
 
