@@ -5,6 +5,7 @@ import com.example.user_service.model.exception.ExceptionValidationDetails;
 import com.example.user_service.model.exception.UniqueConstraintException;
 import com.example.user_service.model.exception.UserNotFoundException;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -21,29 +22,36 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
+@Slf4j
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+
     @ExceptionHandler(value = { UserNotFoundException.class })
     public ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException ex, WebRequest request) {
+        log.error("UserNotFoundException: {}", ex.getMessage());
         ExceptionDetails exceptionDetails = buildExceptionDetails(ex, request);
         return handleExceptionInternal(ex, exceptionDetails, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 
     @ExceptionHandler(value = { UniqueConstraintException.class })
     public ResponseEntity<Object> handleUniqueConstraintException(UniqueConstraintException ex, WebRequest request) {
+        log.error("UniqueConstraintException: {}", ex.getMessage());
         ExceptionDetails exceptionDetails = buildExceptionDetails(ex, request);
         return handleExceptionInternal(ex, exceptionDetails, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException ex,
-                                                                  @NonNull HttpHeaders headers,
-                                                                  @NonNull HttpStatusCode status,
-                                                                  @NonNull WebRequest request) {
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            @NonNull MethodArgumentNotValidException ex,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode status,
+            @NonNull WebRequest request) {
+        log.error("Validation error: {}", ex.getMessage());
         ExceptionDetails exceptionDetails = buildExceptionDetails(ex, request);
-        return handleExceptionInternal(ex, exceptionDetails, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+        return handleExceptionInternal(ex, exceptionDetails, headers, HttpStatus.BAD_REQUEST, request);
     }
 
-    private ExceptionDetails buildExceptionDetails(Exception ex, WebRequest request){
+    private ExceptionDetails buildExceptionDetails(Exception ex, WebRequest request) {
+        log.debug("Building exception details for exception: {}", ex.getClass().getSimpleName());
         return new ExceptionDetails(
                 LocalDateTime.now(),
                 ex.getMessage(),
@@ -52,10 +60,12 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     }
 
     private ExceptionDetails buildExceptionDetails(MethodArgumentNotValidException ex, WebRequest request) {
+        log.debug("Building validation exception details");
         Map<String, String> validationErrors = new HashMap<>();
 
         for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
             validationErrors.put(fieldError.getField(), fieldError.getDefaultMessage());
+            log.warn("Validation error - field: {}, message: {}", fieldError.getField(), fieldError.getDefaultMessage());
         }
 
         return new ExceptionValidationDetails(

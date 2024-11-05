@@ -7,6 +7,7 @@ import com.example.user_service.model.response.LoginResponse;
 import com.example.user_service.service.AuthService;
 import com.example.user_service.service.JwtService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@Slf4j
 public class AuthController {
     private final JwtService jwtService;
     private final AuthService authService;
@@ -29,18 +31,24 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<User> signup(@RequestBody @Valid UserSignUpRequest user) {
-        return ResponseEntity.ok(authService.signup(user));
+        log.info("Received signup request for email: {}", user.getEmail());
+        User createdUser = authService.signup(user);
+        log.info("User signed up successfully with email: {}", createdUser.getEmail());
+        return ResponseEntity.ok(createdUser);
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid UserLoginRequest user) {
-        User loginUser = authService.login(user);
+        log.info("Received login request for email: {}", user.getEmail());
 
-        System.out.println(user);
+        User loginUser = authService.login(user);
+        log.info("User logged in successfully with email: {}", loginUser.getEmail());
 
         String token = jwtService.generateToken(loginUser);
+        log.debug("Generated JWT token for user: {}", loginUser.getEmail());
 
         LoginResponse loginResponse = new LoginResponse(token, jwtService.getJwtExpiration());
+        log.info("Login response generated for user: {}", loginUser.getEmail());
 
         return ResponseEntity.ok(loginResponse);
     }
