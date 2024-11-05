@@ -6,6 +6,7 @@ import com.example.user_service.model.request.UserSignUpRequest;
 import com.example.user_service.model.response.LoginResponse;
 import com.example.user_service.service.AuthService;
 import com.example.user_service.service.JwtService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,12 +28,12 @@ public class AuthController {
 
 
     @PostMapping("/signup")
-    public ResponseEntity<User> signup(@RequestBody UserSignUpRequest user) {
+    public ResponseEntity<User> signup(@RequestBody @Valid UserSignUpRequest user) {
         return ResponseEntity.ok(authService.signup(user));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody UserLoginRequest user) {
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid UserLoginRequest user) {
         User loginUser = authService.login(user);
 
         System.out.println(user);
