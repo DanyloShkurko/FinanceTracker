@@ -1,5 +1,6 @@
 package org.example.expensetracker.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.example.expensetracker.entity.Category;
 import org.example.expensetracker.entity.Expense;
@@ -26,7 +27,7 @@ public class ExpenseController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Void> createExpense(@RequestBody ExpenseRequest request) {
+    public ResponseEntity<Void> createExpense(@RequestBody @Valid ExpenseRequest request) {
         log.info("Received request to create expense for user ID: {}", request.getUserId());
         expenseService.save(request);
         log.info("Expense record created successfully for user ID: {}", request.getUserId());
@@ -72,7 +73,7 @@ public class ExpenseController {
     @PutMapping("/update")
     public ResponseEntity<Void> updateExpense(@RequestParam("userId") long userId,
                                               @RequestParam("expenseId") long expenseId,
-                                              @RequestBody ExpenseRequest request) {
+                                              @RequestBody @Valid ExpenseRequest request) {
         log.info("Received request to update expense for user ID: {} with expense ID: {}", userId, expenseId);
         expenseService.updateByUserIdAndExpenseId(userId, expenseId, request);
         log.info("Expense record updated successfully for user ID: {}", userId);
@@ -80,7 +81,7 @@ public class ExpenseController {
     }
 
     @PostMapping("/limit")
-    public ResponseEntity<Void> createLimit(@RequestBody LimitRequest request) {
+    public ResponseEntity<Void> createLimit(@RequestBody @Valid LimitRequest request) {
         log.info("Received request to limit expense for user ID: {}", request.getUserId());
         limitService.createLimit(request);
         log.info("Limit record created successfully for user ID: {}", request.getUserId());

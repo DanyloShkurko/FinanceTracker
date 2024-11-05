@@ -1,5 +1,6 @@
 package org.example.expensetracker.model.request.expense;
 
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,11 +15,23 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExpenseRequest {
-    private long id;
+    @NotBlank(message = "Title is required.")
+    @Size(max = 100, message = "Title must be at most 100 characters.")
     private String title;
+
+    @Size(max = 500, message = "Description must be at most 500 characters.")
     private String description;
+
+    @NotNull(message = "Amount is required.")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Amount must be greater than zero.")
     private BigDecimal amount;
+
+    @PastOrPresent(message = "Date cannot be in the future.")
     private LocalDate date;
+
+    @NotNull(message = "Category is required.")
     private Category category;
+
+    @Positive(message = "User ID must be a positive value.")
     private long userId;
 }
