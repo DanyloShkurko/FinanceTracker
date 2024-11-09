@@ -1,6 +1,7 @@
 import {useState} from "react";
 import * as React from "react";
 import {useAuth} from "../security/AuthContext.tsx";
+import {useNavigate} from "react-router-dom";
 
 export default function LoginComponent() {
     const [email, setEmail] = useState("")
@@ -18,13 +19,16 @@ export default function LoginComponent() {
     }
 
     const authContext = useAuth();
+    const navigate = useNavigate();
 
     async function handleSubmit() {
         if (await authContext.login(email, password)) {
             setShowFailureMsg(false);
             setShowSuccessMsg(true);
-            console.log(authContext.basicToken);
+            console.log(authContext.jwtToken);
             console.log(authContext.email);
+            console.log(authContext.isAuthenticated)
+            navigate("/me");
         } else {
             setShowSuccessMsg(false);
             setShowFailureMsg(true);

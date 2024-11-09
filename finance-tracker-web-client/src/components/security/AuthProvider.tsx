@@ -1,11 +1,12 @@
 import { ReactNode, useState } from "react";
 import { AuthContext } from "./AuthContext";
 import { loginViaUserService } from "../api/AuthApi.ts";
+import {userApiClient} from "../api/ServicesApiClients.ts";
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [email, setEmail] = useState("");
-    const [basicToken, setBasicToken] = useState("");
+    const [jwtToken, setJwtToken] = useState("");
 
     async function login(email: string, password: string): Promise<boolean> {
         try {
@@ -15,7 +16,15 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
                 const jwt = "Bearer " + response.data.token;
                 setEmail(email);
                 setIsAuthenticated(true);
-                setBasicToken(jwt);
+                setJwtToken(jwt);
+
+                userApiClient.interceptors.request.use(
+                    (config) => {
+                        config.headers.Authorization = jwt;
+                        return config;
+                    }
+                )
+
                 return true;
             } else {
                 logout();
@@ -29,13 +38,22 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     function logout() {
-        setBasicToken("");
+        setJwtToken("");
         setEmail("");
         setIsAuthenticated(false);
     }
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, login, logout, email, basicToken }}>
+        <AuthContext.Provider value={{
+            isAuthenticated,
+            setIsAuthenticated,
+            login,
+            logout,
+            email,
+            setEmail,
+            jwtToken,
+            setJwtToken
+        }}>
             {children}
         </AuthContext.Provider>
     );
