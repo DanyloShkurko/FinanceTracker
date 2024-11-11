@@ -10,7 +10,7 @@ function AuthenticatedRoute({ children }: { children: ReactNode }) {
     const authContext = useAuth();
 
     useEffect(() => {
-        console.log("Auth context updated:", authContext); // Это поможет вам увидеть изменения контекста
+        console.log("Auth context updated:", authContext);
     }, [authContext]);
 
     if (!authContext.isAuthenticated) {

@@ -23,7 +23,7 @@ export default function UserInfoProvider() {
             }
         };
 
-        fetchData(); // Вызов асинхронной функции
+        fetchData();
     }, []);
 
     return (

@@ -24,7 +24,7 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<UserResponse> fetchUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = getAuthentication();
         String username = authentication.getName();
         log.info("Fetching user details for username: {}", username);
 
