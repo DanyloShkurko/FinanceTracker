@@ -1,5 +1,6 @@
 package org.example.expensetracker.controller;
 
+import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.example.expensetracker.entity.Category;
@@ -7,6 +8,7 @@ import org.example.expensetracker.entity.Expense;
 import org.example.expensetracker.model.request.expense.ExpenseRequest;
 import org.example.expensetracker.model.request.limit.LimitRequest;
 import org.example.expensetracker.service.ExpenseService;
+import org.example.expensetracker.service.JwtService;
 import org.example.expensetracker.service.LimitService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +22,12 @@ import java.util.List;
 public class ExpenseController {
     private final ExpenseService expenseService;
     private final LimitService limitService;
+    private final JwtService jwtService;
 
-    public ExpenseController(ExpenseService expenseService, LimitService limitService) {
+    public ExpenseController(ExpenseService expenseService, LimitService limitService, JwtService jwtService) {
         this.expenseService = expenseService;
         this.limitService = limitService;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/add")
@@ -35,7 +39,11 @@ public class ExpenseController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<Expense>> findAllExpenses() {
+    public ResponseEntity<List<Expense>> findAllExpenses(@RequestHeader("Authorization") String token) {
+        if (token != null && !token.isEmpty()) {
+            System.out.println(token);
+            System.out.println(jwtService.extractClaim(token.replace("Bearer ", ""), Claims::getSubject));
+        }
         log.info("Received request to find all expenses records.");
         List<Expense> expenses = expenseService.findAll();
         log.info("Expense records found: {}", expenses);
