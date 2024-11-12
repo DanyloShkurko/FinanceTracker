@@ -1,8 +1,6 @@
-export default function UserInfoComponent(user: {
-    username: string,
-    email: string,
-    role: string
-}) {
+import UserInfo from "./UserInfo.ts";
+
+export default function UserInfoComponent(user: UserInfo ) {
     return (
         <div className="form-group">
             User

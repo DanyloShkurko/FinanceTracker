@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/v1/expenses")
 @Slf4j
 public class ExpenseController {

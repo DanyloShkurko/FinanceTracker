@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getUserInfo } from "../api/UserApi.ts";
 import { AxiosResponse } from "axios";
 import UserInfoComponent from "./UserInfoComponent.tsx";
+import {Link} from "react-router-dom";
 
 interface UserInfo {
     id: number;
@@ -33,6 +34,7 @@ export default function UserInfoProvider() {
             ) : (
                 <p>Loading...</p>
             )}
+            <Link to={'/list'}>Go here</Link>
         </div>
     );
 }

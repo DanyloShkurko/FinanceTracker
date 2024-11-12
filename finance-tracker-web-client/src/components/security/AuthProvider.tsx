@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react";
 import { AuthContext } from "./AuthContext";
 import { loginViaUserService } from "../api/AuthApi.ts";
-import {userApiClient} from "../api/ServicesApiClients.ts";
+import {expenseApiClient, userApiClient} from "../api/ServicesApiClients.ts";
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -19,6 +19,12 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
                 setJwtToken(jwt);
 
                 userApiClient.interceptors.request.use(
+                    (config) => {
+                        config.headers.Authorization = jwt;
+                        return config;
+                    }
+                )
+                expenseApiClient.interceptors.request.use(
                     (config) => {
                         config.headers.Authorization = jwt;
                         return config;
