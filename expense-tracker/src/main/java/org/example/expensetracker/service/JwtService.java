@@ -18,9 +18,6 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    @Value("${jwt.expiration}")
-    private long jwtExpiration;
-
     public String extractUsername(String token) {
         log.debug("Extracting username from token");
         return extractClaim(token, Claims::getSubject);
@@ -32,7 +29,7 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    private boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         log.debug("Checking if token is expired");
         boolean expired = extractExpiration(token).before(new Date());
         log.info("Token expiration status: {}", expired ? "Expired" : "Valid");

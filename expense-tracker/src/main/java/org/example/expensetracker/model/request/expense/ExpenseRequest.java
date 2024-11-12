@@ -31,7 +31,5 @@ public class ExpenseRequest {
 
     @NotNull(message = "Category is required.")
     private Category category;
-
-    @Positive(message = "User ID must be a positive value.")
     private long userId;
 }

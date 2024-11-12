@@ -1,15 +1,17 @@
 package org.example.expensetracker.controller;
 
-import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.example.expensetracker.entity.Category;
 import org.example.expensetracker.entity.Expense;
+import org.example.expensetracker.entity.User;
+import org.example.expensetracker.model.exception.AccessDeniedException;
 import org.example.expensetracker.model.request.expense.ExpenseRequest;
 import org.example.expensetracker.model.request.limit.LimitRequest;
 import org.example.expensetracker.service.ExpenseService;
 import org.example.expensetracker.service.JwtService;
 import org.example.expensetracker.service.LimitService;
+import org.example.expensetracker.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,15 +25,20 @@ public class ExpenseController {
     private final ExpenseService expenseService;
     private final LimitService limitService;
     private final JwtService jwtService;
+    private final UserService userService;
 
-    public ExpenseController(ExpenseService expenseService, LimitService limitService, JwtService jwtService) {
+    public ExpenseController(ExpenseService expenseService, LimitService limitService, JwtService jwtService, UserService userService) {
         this.expenseService = expenseService;
         this.limitService = limitService;
         this.jwtService = jwtService;
+        this.userService = userService;
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Void> createExpense(@RequestBody @Valid ExpenseRequest request) {
+    public ResponseEntity<Void> createExpense(@RequestHeader("Authorization") String token,
+                                              @RequestBody @Valid ExpenseRequest request) {
+        User user = parseToken(token);
+        request.setUserId(user.getId());
         log.info("Received request to create expense for user ID: {}", request.getUserId());
         expenseService.save(request);
         log.info("Expense record created successfully for user ID: {}", request.getUserId());
@@ -39,11 +46,7 @@ public class ExpenseController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<Expense>> findAllExpenses(@RequestHeader("Authorization") String token) {
-        if (token != null && !token.isEmpty()) {
-            System.out.println(token);
-            System.out.println(jwtService.extractClaim(token.replace("Bearer ", ""), Claims::getSubject));
-        }
+    public ResponseEntity<List<Expense>> findAllExpenses() {
         log.info("Received request to find all expenses records.");
         List<Expense> expenses = expenseService.findAll();
         log.info("Expense records found: {}", expenses);
@@ -51,48 +54,63 @@ public class ExpenseController {
     }
 
     @GetMapping("/listUser")
-    public ResponseEntity<List<Expense>> findExpenseByUserId(@RequestParam("userId") long userId) {
-        log.info("Received request to find expenses for user ID: {}", userId);
-        List<Expense> expenses = expenseService.findByUserId(userId);
-        log.info("Expense records found: {} \n by user id: {}", expenses, userId);
+    public ResponseEntity<List<Expense>> findExpenseByUserId(@RequestHeader("Authorization") String token) {
+        User user = parseToken(token);
+        log.info("Received request to find expenses for user ID: {}", user.getId());
+        List<Expense> expenses = expenseService.findByUserId(parseToken(token).getId());
+        log.info("Expense records found: {} \n by user id: {}", expenses, user.getId());
         return ResponseEntity.ok(expenses);
     }
 
     @GetMapping("/analyze")
-    public ResponseEntity<List<Expense>> analyzeExpenses(@RequestParam(value = "from", required = false) LocalDate from,
+    public ResponseEntity<List<Expense>> analyzeExpenses(@RequestHeader("Authorization") String token,
+                                                         @RequestParam(value = "from", required = false) LocalDate from,
                                                          @RequestParam(value = "to", required = false) LocalDate to,
-                                                         @RequestParam(value = "category", required = false) Category category,
-                                                         @RequestParam("userId") long userId) {
-        log.info("Received request to analyze expenses for user ID: {} with date range from: {} to: {}", userId, from, to);
-        List<Expense> expenses = expenseService.analyzeExpenses(from, to, category, userId);
-        log.info("Returning {} expenses for user ID: {} with date range from: {} to: {}", expenses.size(), userId, from, to);
+                                                         @RequestParam(value = "category", required = false) Category category) {
+        User user = parseToken(token);
+        log.info("Received request to analyze expenses for user ID: {} with date range from: {} to: {}", user.getId(), from, to);
+        List<Expense> expenses = expenseService.analyzeExpenses(from, to, category, user.getId());
+        log.info("Returning {} expenses for user ID: {} with date range from: {} to: {}", expenses.size(), user.getId(), from, to);
         return ResponseEntity.ok(expenses);
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteExpense(@RequestParam("userId") long userId,
+    public ResponseEntity<Void> deleteExpense(@RequestHeader("Authorization") String token,
                                               @RequestParam("expenseId") long expenseId) {
-        log.info("Received request to delete expense for user ID: {} with expense ID: {}", userId, expenseId);
-        expenseService.deleteByUserIdAndExpenseId(userId, expenseId);
-        log.info("Expense record deleted successfully for user ID: {}", userId);
+        User user = parseToken(token);
+        log.info("Received request to delete expense for user ID: {} with expense ID: {}", user.getId(), expenseId);
+        expenseService.deleteByUserIdAndExpenseId(user.getId(), expenseId);
+        log.info("Expense record deleted successfully for user ID: {}", user.getId());
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Void> updateExpense(@RequestParam("userId") long userId,
+    public ResponseEntity<Void> updateExpense(@RequestHeader("Authorization") String token,
                                               @RequestParam("expenseId") long expenseId,
                                               @RequestBody @Valid ExpenseRequest request) {
-        log.info("Received request to update expense for user ID: {} with expense ID: {}", userId, expenseId);
-        expenseService.updateByUserIdAndExpenseId(userId, expenseId, request);
-        log.info("Expense record updated successfully for user ID: {}", userId);
+        User user = parseToken(token);
+        log.info("Received request to update expense for user ID: {} with expense ID: {}", user.getId(), expenseId);
+        expenseService.updateByUserIdAndExpenseId(user.getId(), expenseId, request);
+        log.info("Expense record updated successfully for user ID: {}", user.getId());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/limit")
-    public ResponseEntity<Void> createLimit(@RequestBody @Valid LimitRequest request) {
+    public ResponseEntity<Void> createLimit(@RequestHeader("Authorization") String token,
+                                            @RequestBody @Valid LimitRequest request) {
+        User user = parseToken(token);
+        request.setUserId(user.getId());
         log.info("Received request to limit expense for user ID: {}", request.getUserId());
         limitService.createLimit(request);
         log.info("Limit record created successfully for user ID: {}", request.getUserId());
         return ResponseEntity.ok().build();
+    }
+
+    private User parseToken(String token) {
+        if (token == null || !token.startsWith("Bearer ") || jwtService.isTokenExpired(token.replace("Bearer ", ""))) {
+            throw new AccessDeniedException("Token is empty");
+        }
+        String email = jwtService.extractUsername(token.replace("Bearer ", ""));
+        return userService.findUserByEmail(email);
     }
 }

@@ -4,4 +4,5 @@ import org.example.expensetracker.entity.User;
 
 public interface UserService {
     User findUserById(long id);
+    User findUserByEmail(String email);
 }

@@ -36,6 +36,11 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return handleExceptionInternal(ex, buildExceptionDetails(ex, request), new HttpHeaders(), HttpStatus.FORBIDDEN, request);
     }
 
+    @ExceptionHandler(value = { AccessDeniedException.class })
+    protected ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+        return handleExceptionInternal(ex, buildExceptionDetails(ex, request), new HttpHeaders(), HttpStatus.FORBIDDEN, request);
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException ex,
                                                                   @NonNull HttpHeaders headers,
