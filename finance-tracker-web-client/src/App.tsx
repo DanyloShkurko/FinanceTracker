@@ -7,6 +7,7 @@ import {ReactNode, useEffect} from "react";
 import UserInfoProvider from "./components/userComponents/UserInfoProvider.tsx";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ExpenseInfoProvider from "./components/expenseComponents/ExpenseInfoProvider.tsx";
+import SignupComponent from "./components/authComponents/SignupComponent.tsx";
 
 function AuthenticatedRoute({children}: { children: ReactNode }) {
     const authContext = useAuth();
@@ -28,6 +29,7 @@ function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path="/login" element={<LoginComponent/>}/>
+                    <Route path="/signup" element={<SignupComponent/>}/>
                     <Route path="/me" element={
                         <AuthenticatedRoute>
                             <UserInfoProvider/>
