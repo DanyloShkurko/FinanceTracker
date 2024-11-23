@@ -9,19 +9,21 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import ExpenseInfoProvider from "./components/expenseComponents/ExpenseInfoProvider.tsx";
 import SignupComponent from "./components/authComponents/SignupComponent.tsx";
 
-function AuthenticatedRoute({children}: { children: ReactNode }) {
+function AuthenticatedRoute({ children }: { children: ReactNode }) {
     const authContext = useAuth();
 
     useEffect(() => {
-        console.log("Auth context updated:", authContext);
+        console.log("Auth context in AuthenticatedRoute:", authContext);
     }, [authContext]);
 
     if (!authContext.isAuthenticated) {
-        return <Navigate to="/login"/>;
+        console.log("User not authenticated, redirecting to /login");
+        return <Navigate to="/login" />;
     }
 
     return <>{children}</>;
 }
+
 
 function App() {
     return (
@@ -30,7 +32,7 @@ function App() {
                 <Routes>
                     <Route path="/login" element={<LoginComponent/>}/>
                     <Route path="/signup" element={<SignupComponent/>}/>
-                    <Route path="/me" element={
+                    <Route path="/" element={
                         <AuthenticatedRoute>
                             <UserInfoProvider/>
                         </AuthenticatedRoute>

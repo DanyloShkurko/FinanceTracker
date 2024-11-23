@@ -40,7 +40,7 @@ export default function LoginComponent() {
             console.log(authContext.jwtToken);
             console.log(authContext.email);
             console.log(authContext.isAuthenticated)
-            navigate("/me");
+            navigate("/");
         } else {
             setShowSuccessMsg(false);
             setShowFailureMsg(true);
