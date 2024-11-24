@@ -1,6 +1,8 @@
-import React from 'react';
-import {Form, Formik} from "formik";
+import React, {useState} from 'react';
+import {ErrorMessage, Field, Form, Formik} from "formik";
 import * as Yup from 'yup';
+import {createExpense} from "../api/ExpenseApi.ts";
+import ExpenseFormFields from "./model/ExpenseFormFields.ts";
 
 interface PopupProps {
     show: boolean;
@@ -8,21 +10,15 @@ interface PopupProps {
     children?: React.ReactNode;
 }
 
-const CreateExpensePopup: React.FC<PopupProps> = ({ show, onClose }) => {
-    if (!show) return null;
+const CreateExpensePopup: React.FC<PopupProps> = ({show, onClose}) => {
+    const [showSuccessMsg, setShowSuccessMsg] = useState(false);
+    const [showFailureMsg, setShowFailureMsg] = useState(false);
 
-    type ExpenseFormValues = {
-        title: string;
-        amount: number;
-        date: Date;
-        category: string;
-        description: string;
-    }
+    if (!show) return null;
 
     const initialValues = {
         title: '',
         amount: 0,
-        date: new Date(),
         category: '',
         description: ''
     };
@@ -31,7 +27,7 @@ const CreateExpensePopup: React.FC<PopupProps> = ({ show, onClose }) => {
         title: Yup.string()
             .required('Title is required')
             .min(6, 'Title should be at least 6 characters')
-            .max(50, 'Title should be maximum 50 characters'),
+            .max(100, 'Title should be maximum 50 characters'),
         amount: Yup.number()
             .required('Amount is required')
             .positive('Amount should be positive'),
@@ -39,32 +35,120 @@ const CreateExpensePopup: React.FC<PopupProps> = ({ show, onClose }) => {
             .required('Category is required'),
         description: Yup.string()
             .required('Description is required')
+            .max(50, "Description should be maximum 50 characters")
     })
 
-    async function handleSubmit(values: ExpenseFormValues) {
-        /*
-        TODO: finish creating todo function
-         */
+    async function handleSubmit(values: ExpenseFormFields) {
+        if (await createExpense(values)) {
+            setShowFailureMsg(false);
+            setShowSuccessMsg(true);
+            onClose();
+        } else {
+            setShowSuccessMsg(false);
+            setShowFailureMsg(true);
+        }
     }
 
     return (
         <div className="popup-overlay">
             <div className="popup-content">
-                <button className="close-button" onClick={onClose}>
-                    ×
-                </button>
-                <Formik
-                initialValues={initialValues}
-                validationSchema={validationSchema}
-                onSubmit={handleSubmit}
-                >
-                    <Form>
+                <button className="close-button btn btn-outline-danger btn-sm" onClick={onClose}>X</button>
 
-                    </Form>
+                {showSuccessMsg && (
+                    <div className="alert alert-success alert-dismissible fade show" role="alert">
+                        Expense created successfully!
+                        <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                )}
+                {showFailureMsg && (
+                    <div className="alert alert-danger alert-dismissible fade show" role="alert">
+                        Expense creation failed! Please check your input.
+                        <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                )}
+
+                <Formik
+                    initialValues={initialValues}
+                    validationSchema={validationSchema}
+                    onSubmit={handleSubmit}
+                >
+                    {({isSubmitting}) => (
+                        <Form>
+                            <div className="mb-2">
+                                <label htmlFor="title" className="form-label small">Expense title</label>
+                                <Field
+                                    type="text"
+                                    id="title"
+                                    name="title"
+                                    className="form-control form-control-sm"
+                                    placeholder="Enter title"
+                                />
+                                <ErrorMessage name="title" component="div" className="text-danger small"/>
+                            </div>
+
+                            <div className="mb-2">
+                                <label htmlFor="description" className="form-label small">Expense description</label>
+                                <Field
+                                    type="text"
+                                    id="description"
+                                    name="description"
+                                    className="form-control form-control-sm"
+                                    placeholder="Enter description"
+                                />
+                                <ErrorMessage name="description" component="div" className="text-danger small"/>
+                            </div>
+
+                            <div className="mb-2">
+                                <label htmlFor="amount" className="form-label small">Expense amount</label>
+                                <Field
+                                    type="number"
+                                    id="amount"
+                                    name="amount"
+                                    className="form-control form-control-sm"
+                                    placeholder="Enter amount"
+                                />
+                                <ErrorMessage name="amount" component="div" className="text-danger small"/>
+                            </div>
+
+                            <div className="mb-2">
+                                <label htmlFor="category" className="form-label small">Expense category</label>
+                                <Field
+                                    as="select"
+                                    id="category"
+                                    name="category"
+                                    className="form-control form-control-sm"
+                                >
+                                    <option value="">Select category</option>
+                                    <option value="FOOD_GROCERIES">Food</option>
+                                    <option value="TRANSPORTATION">Transportation</option>
+                                    <option value="HOUSING_UTILITIES">Housing utilities</option>
+                                    <option value="ENTERTAINMENT">Entertainment</option>
+                                    <option value="HEALTHCARE">Health</option>
+                                    <option value="INSURANCE">Insurance</option>
+                                    <option value="PERSONAL_CARE">Personal care</option>
+                                    <option value="CLOTHING">Clothing</option>
+                                    <option value="EDUCATION">Education</option>
+                                    <option value="SUBSCRIPTIONS_MEMBERSHIPS">Subscriptions/Memberships</option>
+                                    <option value="TRAVEL_VACATIONS">Travel vacations</option>
+                                    <option value="GIFTS_DONATIONS">Gift donations</option>
+                                    <option value="MISCELLANEOUS">Miscellaneous</option>
+                                </Field>
+                                <ErrorMessage name="category" component="div" className="text-danger small"/>
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="btn btn-primary btn-sm w-100"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? 'Creating...' : 'Create'}
+                            </button>
+                        </Form>
+                    )}
                 </Formik>
             </div>
         </div>
     );
-};
+}
 
 export default CreateExpensePopup;

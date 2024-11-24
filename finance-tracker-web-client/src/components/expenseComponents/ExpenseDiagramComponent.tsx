@@ -1,5 +1,5 @@
-import Expense from "./Expense.ts";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import Expense from "./model/Expense.ts";
 
 type DataItem = {
     name: string;

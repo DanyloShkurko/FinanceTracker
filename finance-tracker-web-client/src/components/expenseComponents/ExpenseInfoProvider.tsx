@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import ExpenseListComponent from "./ExpenseListComponent.tsx";
-import findAllExpenses from "../api/ExpenseApi.ts";
-import Expense from "./Expense.ts";
+import { findAllExpenses } from "../api/ExpenseApi.ts";
 import { AxiosResponse } from "axios";
 import { getUserInfo } from "../api/UserApi.ts";
 import UserInfo from "../userComponents/UserInfo.ts";
@@ -9,6 +8,7 @@ import { DateFilterComponent } from "./DateFilterComponent.tsx";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ExpenseDiagramComponent from "./ExpenseDiagramComponent.tsx";
 import CreateExpensePopup from "./CreateExpensePopup.tsx";
+import Expense from "./model/Expense.ts";
 
 export default function ExpenseInfoProvider() {
     const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
@@ -54,21 +54,23 @@ export default function ExpenseInfoProvider() {
 
     return (
         <div className="container my-4">
-            <header className="mb-4">
-                <h1 className="text-center">Expense Tracker</h1>
-                <h4 className="text-center text-muted">Welcome, {userInfo.username}!</h4>
+            <header className="bg-primary text-white p-4 rounded shadow mb-4">
+                <h1 className="text-center display-5 fw-bold">Expense Tracker</h1>
+                <h4 className="text-center">Welcome, {userInfo.username}!</h4>
             </header>
             <section className="mb-4">
                 <h3>Total Spent: <span className="text-primary">${totalSpent.toFixed(2)}</span></h3>
-                <button className="btn btn-success btn-md" onClick={openPopup}>Create expense</button>
+                <button className="btn btn-success btn-lg" hidden={isPopupOpen} onClick={openPopup} >
+                    Create Expense
+                </button>
                 <CreateExpensePopup show={isPopupOpen} onClose={closePopup}/>
-                <DateFilterComponent onFilter={onFilter} />
+                <DateFilterComponent onFilter={onFilter}/>
             </section>
             <section>
-                <ExpenseDiagramComponent expenses={filteredExpenses} />
+                <ExpenseDiagramComponent expenses={filteredExpenses}/>
             </section>
             <section>
-                <ExpenseListComponent expenses={filteredExpenses} />
+                <ExpenseListComponent expenses={filteredExpenses}/>
             </section>
         </div>
     );

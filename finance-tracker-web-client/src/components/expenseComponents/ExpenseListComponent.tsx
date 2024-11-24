@@ -1,6 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import ExpenseInfoComponentProps from "./ExpenseInfoComponentProps.ts";
-import Expense from "./Expense.ts";
+import ExpenseInfoComponentProps from "./model/ExpenseInfoComponentProps.ts";
+import Expense from "./model/Expense.ts";
 
 export default function ExpenseListComponent({ expenses }: ExpenseInfoComponentProps) {
     if (expenses.length === 0) {
@@ -23,17 +23,14 @@ export default function ExpenseListComponent({ expenses }: ExpenseInfoComponentP
                 Object.entries(groupedExpenses).map(([category, categoryExpenses]) => (
                     <div key={category} className="mb-4">
                         <h4 className="text-primary">{category}</h4>
-                        <div className="row g-3">
+                        <div className="row">
                             {categoryExpenses.map((expense) => (
-                                <div className="col" key={expense.id}>
-                                    <div className="card shadow-sm">
+                                <div className="col-md-4 mb-4" key={expense.id}>
+                                    <div className="card shadow">
                                         <div className="card-body">
-                                            <h5 className="card-title text-truncate">{expense.title}</h5>
-                                            <p className="card-text text-muted">{expense.description}</p>
-                                            <ul className="list-unstyled mb-0">
-                                                <li><strong>Date:</strong> {expense.date ? new Date(expense.date).toLocaleDateString() : "No date provided"}</li>
-                                                <li><strong>Amount:</strong> ${expense.amount.toFixed(2)}</li>
-                                            </ul>
+                                            <h5 className="card-title">{expense.title}</h5>
+                                            <p className="card-text">{expense.description}</p>
+                                            <p className="text-muted">Amount: ${expense.amount}</p>
                                         </div>
                                     </div>
                                 </div>
