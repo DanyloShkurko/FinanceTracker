@@ -61,6 +61,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
                 localStorage.setItem("jwtToken", jwt);
                 localStorage.setItem("email", email);
 
+                console.log(jwt);
+
                 userApiClient.interceptors.request.use((config) => {
                     config.headers.Authorization = jwt;
                     return config;

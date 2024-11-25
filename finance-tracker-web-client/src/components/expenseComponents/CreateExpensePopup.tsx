@@ -1,42 +1,15 @@
 import React, {useState} from 'react';
 import {ErrorMessage, Field, Form, Formik} from "formik";
-import * as Yup from 'yup';
 import {createExpense} from "../api/ExpenseApi.ts";
 import ExpenseFormFields from "./model/ExpenseFormFields.ts";
-
-interface PopupProps {
-    show: boolean;
-    onClose: () => void;
-    children?: React.ReactNode;
-}
+import {initialValues, validationSchema} from "./model/validation/ExpenseValidation.ts";
+import {PopupProps} from "./model/PopupProps.ts";
 
 const CreateExpensePopup: React.FC<PopupProps> = ({show, onClose}) => {
     const [showSuccessMsg, setShowSuccessMsg] = useState(false);
     const [showFailureMsg, setShowFailureMsg] = useState(false);
 
     if (!show) return null;
-
-    const initialValues = {
-        title: '',
-        amount: 0,
-        category: '',
-        description: ''
-    };
-
-    const validationSchema = Yup.object({
-        title: Yup.string()
-            .required('Title is required')
-            .min(6, 'Title should be at least 6 characters')
-            .max(100, 'Title should be maximum 50 characters'),
-        amount: Yup.number()
-            .required('Amount is required')
-            .positive('Amount should be positive'),
-        category: Yup.string()
-            .required('Category is required'),
-        description: Yup.string()
-            .required('Description is required')
-            .max(50, "Description should be maximum 50 characters")
-    })
 
     async function handleSubmit(values: ExpenseFormFields) {
         if (await createExpense(values)) {
