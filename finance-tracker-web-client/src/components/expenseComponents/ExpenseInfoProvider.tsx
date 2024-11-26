@@ -1,10 +1,10 @@
-import { useEffect, useState, useMemo } from "react";
+import {useEffect, useState, useMemo} from "react";
 import ExpenseListComponent from "./ExpenseListComponent.tsx";
-import { findAllExpenses } from "../api/ExpenseApi.ts";
-import { AxiosResponse } from "axios";
-import { getUserInfo } from "../api/UserApi.ts";
+import {findAllExpenses} from "../api/ExpenseApi.ts";
+import {AxiosResponse} from "axios";
+import {getUserInfo} from "../api/UserApi.ts";
 import UserInfo from "../userComponents/UserInfo.ts";
-import { DateFilterComponent } from "./DateFilterComponent.tsx";
+import {DateFilterComponent} from "./DateFilterComponent.tsx";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ExpenseDiagramComponent from "./ExpenseDiagramComponent.tsx";
 import CreateExpensePopup from "./CreateExpensePopup.tsx";
@@ -45,6 +45,11 @@ export default function ExpenseInfoProvider() {
         setFilteredExpenses(filtered);
     }
 
+    function handleUpdatingExpenses(expense: Expense) {
+        setExpenses((prev) => [...prev, expense]);
+        setFilteredExpenses((prev) => [...prev, expense]);
+    }
+
     const totalSpent = useMemo(
         () => filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0),
         [filteredExpenses]
@@ -60,17 +65,23 @@ export default function ExpenseInfoProvider() {
             </header>
             <section className="mb-4">
                 <h3>Total Spent: <span className="text-primary">${totalSpent.toFixed(2)}</span></h3>
-                <button className="btn btn-success btn-lg" hidden={isPopupOpen} onClick={openPopup} >
+                <button className="btn btn-success btn-lg" hidden={isPopupOpen} onClick={openPopup}>
                     Create Expense
                 </button>
-                <CreateExpensePopup show={isPopupOpen} onClose={closePopup}/>
+                <CreateExpensePopup
+                    show={isPopupOpen}
+                    onClose={closePopup}
+                    onAddExpense={handleUpdatingExpenses}
+                />
+
+
                 <DateFilterComponent onFilter={onFilter}/>
             </section>
             <section>
                 <ExpenseDiagramComponent expenses={filteredExpenses}/>
             </section>
             <section>
-                <ExpenseListComponent expenses={filteredExpenses}/>
+                <ExpenseListComponent expenses={filteredExpenses} setExpenses={handleUpdatingExpenses}/>
             </section>
         </div>
     );

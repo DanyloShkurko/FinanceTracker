@@ -8,6 +8,7 @@ import org.example.expensetracker.entity.User;
 import org.example.expensetracker.model.exception.AccessDeniedException;
 import org.example.expensetracker.model.request.expense.ExpenseRequest;
 import org.example.expensetracker.model.request.limit.LimitRequest;
+import org.example.expensetracker.model.response.ExpenseResponse;
 import org.example.expensetracker.service.ExpenseService;
 import org.example.expensetracker.service.JwtService;
 import org.example.expensetracker.service.LimitService;
@@ -36,14 +37,14 @@ public class ExpenseController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Void> createExpense(@RequestHeader("Authorization") String token,
+    public ResponseEntity<ExpenseResponse> createExpense(@RequestHeader("Authorization") String token,
                                               @RequestBody @Valid ExpenseRequest request) {
         User user = parseToken(token);
         request.setUserId(user.getId());
         log.info("Received request to create expense for user ID: {}", request.getUserId());
-        expenseService.save(request);
+        ExpenseResponse expenseResponse = expenseService.save(request);
         log.info("Expense record created successfully for user ID: {}", request.getUserId());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(expenseResponse);
     }
 
     @GetMapping("/list")
@@ -86,19 +87,19 @@ public class ExpenseController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Void> updateExpense(@RequestHeader("Authorization") String token,
+    public ResponseEntity<ExpenseResponse> updateExpense(@RequestHeader("Authorization") String token,
                                               @RequestParam("expenseId") long expenseId,
                                               @RequestBody @Valid ExpenseRequest request) {
         User user = parseToken(token);
         log.info("Received request to update expense for user ID: {} with expense ID: {}", user.getId(), expenseId);
-        expenseService.updateByUserIdAndExpenseId(user.getId(), expenseId, request);
+        ExpenseResponse expenseResponse = expenseService.updateByUserIdAndExpenseId(user.getId(), expenseId, request);
         log.info("Expense record updated successfully for user ID: {}", user.getId());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(expenseResponse);
     }
 
     @PostMapping("/limit")
     public ResponseEntity<Void> createLimit(@RequestHeader("Authorization") String token,
-                                            @RequestBody @Valid LimitRequest request) {
+                                                       @RequestBody @Valid LimitRequest request) {
         User user = parseToken(token);
         request.setUserId(user.getId());
         log.info("Received request to limit expense for user ID: {}", request.getUserId());

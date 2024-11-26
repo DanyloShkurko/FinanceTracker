@@ -4,8 +4,9 @@ import Expense from "./model/Expense.ts";
 import UpdateExpensePopup from "./UpdateExpensePopup.tsx";
 import { useState } from "react";
 
-export default function ExpenseListComponent({ expenses }: ExpenseInfoComponentProps) {
+export default function ExpenseListComponent({ expenses, setExpenses }: ExpenseInfoComponentProps) {
     const [openPopupId, setOpenPopupId] = useState<number | null>(null);
+
 
     const openPopup = (id: number) => {
         setOpenPopupId(id);
@@ -37,7 +38,7 @@ export default function ExpenseListComponent({ expenses }: ExpenseInfoComponentP
                         <h4 className="text-primary">{category}</h4>
                         <div className="row">
                             {categoryExpenses.map((expenseEntity) => (
-                                <div className="col-md-4 mb-4" key={expenseEntity.id}>
+                                <div className="col" key={expenseEntity.id}>
                                     <div className="card shadow">
                                         <div className="card-body">
                                             <h5 className="card-title">{expenseEntity.title}</h5>
@@ -56,6 +57,7 @@ export default function ExpenseListComponent({ expenses }: ExpenseInfoComponentP
                                             expense={expenseEntity}
                                             show={openPopupId === expenseEntity.id}
                                             onClose={closePopup}
+                                            onUpdate={setExpenses}
                                         />
                                     </div>
                                 </div>

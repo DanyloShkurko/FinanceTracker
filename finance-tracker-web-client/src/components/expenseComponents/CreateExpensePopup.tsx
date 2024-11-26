@@ -4,21 +4,33 @@ import {createExpense} from "../api/ExpenseApi.ts";
 import ExpenseFormFields from "./model/ExpenseFormFields.ts";
 import {initialValues, validationSchema} from "./model/validation/ExpenseValidation.ts";
 import {PopupProps} from "./model/PopupProps.ts";
+import Expense from "./model/Expense.ts";
 
-const CreateExpensePopup: React.FC<PopupProps> = ({show, onClose}) => {
+const CreateExpensePopup: React.FC<PopupProps & { onAddExpense: (expense: Expense) => void }> = ({
+                                                                                                     show,
+                                                                                                     onClose,
+                                                                                                     onAddExpense,
+                                                                                                 }) => {
     const [showSuccessMsg, setShowSuccessMsg] = useState(false);
     const [showFailureMsg, setShowFailureMsg] = useState(false);
 
     if (!show) return null;
 
     async function handleSubmit(values: ExpenseFormFields) {
-        if (await createExpense(values)) {
-            setShowFailureMsg(false);
-            setShowSuccessMsg(true);
-            onClose();
-        } else {
+        try {
+            const expenseResponse = await createExpense(values);
+            if (expenseResponse.status === 200 && expenseResponse.data) {
+                setShowFailureMsg(false);
+                setShowSuccessMsg(true);
+                onAddExpense(expenseResponse.data as Expense);
+                onClose();
+            } else {
+                throw new Error("Invalid response");
+            }
+        } catch (error) {
             setShowSuccessMsg(false);
             setShowFailureMsg(true);
+            console.error("Expense creation failed:", error);
         }
     }
 

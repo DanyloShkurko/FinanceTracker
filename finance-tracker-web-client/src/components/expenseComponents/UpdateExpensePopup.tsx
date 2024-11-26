@@ -8,15 +8,21 @@ interface UpdateExpensePopupProps {
     expense: Expense;
     show: boolean;
     onClose: () => void;
+    onUpdate: (expense: Expense) => void;
 }
 
-export default function UpdateExpensePopup({ expense, show, onClose }: UpdateExpensePopupProps) {
+export default function UpdateExpensePopup({ expense, show, onClose, onUpdate}: UpdateExpensePopupProps) {
     if (!show) return null;
 
     async function handleSubmit(values: ExpenseFormFields) {
-        if (await updateExpense(expense.id, values)) {
-
-            onClose();
+        try {
+            const updatedExpense = await updateExpense(expense.id, values);
+            if (updatedExpense.status === 200 && updatedExpense.data) {
+                onUpdate(updatedExpense.data as Expense);
+                onClose();
+            }
+        } catch (e) {
+            console.error("Expense creation failed:", e);
         }
     }
 
