@@ -7,6 +7,7 @@ import {ReactNode, useEffect} from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ExpenseInfoProvider from "./components/expenseComponents/ExpenseInfoProvider.tsx";
 import SignupComponent from "./components/authComponents/SignupComponent.tsx";
+import UpdateUserComponent from "./components/userComponents/UpdateUserComponent.tsx";
 
 function AuthenticatedRoute({ children }: { children: ReactNode }) {
     const authContext = useAuth();
@@ -35,6 +36,11 @@ function App() {
                         <AuthenticatedRoute>
                             <ExpenseInfoProvider/>
                         </AuthenticatedRoute>
+                    }/>
+                    <Route path="/update" element={
+                       <AuthenticatedRoute>
+                           <UpdateUserComponent/>
+                       </AuthenticatedRoute>
                     }/>
                 </Routes>
             </BrowserRouter>
