@@ -2,7 +2,7 @@ import {useState} from "react";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import {useAuth} from "../security/AuthContext.tsx";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 
 export default function LoginComponent() {
     type LoginFormValues = {
@@ -98,6 +98,7 @@ export default function LoginComponent() {
                             >
                                 {isSubmitting ? 'Logging in...' : 'Login'}
                             </button>
+                            <p>No account yet? <Link to="/signup">Sign up here</Link></p>
                         </Form>
                     )}
                 </Formik>
