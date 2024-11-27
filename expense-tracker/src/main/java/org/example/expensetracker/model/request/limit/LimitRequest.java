@@ -34,7 +34,5 @@ public class LimitRequest {
     @NotNull(message = "End date is required.")
     @FutureOrPresent(message = "End date cannot be in the past.")
     private LocalDate endDate;
-
-    @Positive(message = "User ID must be a positive value.")
     private long userId;
 }

@@ -8,6 +8,7 @@ import org.example.expensetracker.entity.User;
 import org.example.expensetracker.model.exception.ExpenseNotFoundException;
 import org.example.expensetracker.model.exception.LimitHasBeenExceededException;
 import org.example.expensetracker.model.request.expense.ExpenseRequest;
+import org.example.expensetracker.model.response.ExpenseResponse;
 import org.example.expensetracker.repository.ExpenseRepository;
 import org.example.expensetracker.service.ExpenseService;
 import org.example.expensetracker.service.LimitService;
@@ -34,7 +35,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
-    public void save(ExpenseRequest expenseRequest) {
+    public ExpenseResponse save(ExpenseRequest expenseRequest) {
         log.info("Attempting to save expense record for user ID: {}", expenseRequest.getUserId());
 
         User user = userService.findUserById(expenseRequest.getUserId());
@@ -47,6 +48,13 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         log.info("Expense record saved successfully for user ID: {}, Category: {}, Amount: {}",
                 user.getId(), expenseRequest.getCategory(), expenseRequest.getAmount());
+
+        return new ExpenseResponse(expense.getId(),
+                expense.getTitle(),
+                expense.getDescription(),
+                expense.getCategory().toString(),
+                expense.getAmount().doubleValue(),
+                expense.getDate());
     }
 
     private void checkLimitExceeded(List<Limit> userLimits, ExpenseRequest expenseRequest) {
@@ -119,7 +127,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
-    public void updateByUserIdAndExpenseId(long userId, long expenseId, ExpenseRequest expenseRequest) {
+    public ExpenseResponse updateByUserIdAndExpenseId(long userId, long expenseId, ExpenseRequest expenseRequest) {
         log.info("Attempting to update expense with ID {} for user ID {}", expenseId, userId);
 
         Expense expense = findExpenseByUserIdAndExpenseId(userId, expenseId);
@@ -127,6 +135,13 @@ public class ExpenseServiceImpl implements ExpenseService {
         expenseRepository.save(expense);
 
         log.info("Successfully updated expense with ID {} for user ID {}", expenseId, userId);
+
+        return new ExpenseResponse(expense.getId(),
+                expense.getTitle(),
+                expense.getDescription(),
+                expense.getCategory().toString(),
+                expense.getAmount().doubleValue(),
+                expense.getDate());
     }
 
 
