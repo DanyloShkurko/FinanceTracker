@@ -2,8 +2,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import ExpenseInfoComponentProps from "./model/popupProps/ExpenseInfoComponentProps.ts";
 import Expense from "./model/Expense.ts";
 import UpdateExpensePopup from "./UpdateExpensePopup.tsx";
-import {useState} from "react";
-import {removeExpense} from "../api/ExpenseApi.ts";
+import {useEffect, useState} from "react";
+import {createLimit, fetchLimits, removeExpense} from "../api/ExpenseApi.ts";
 import SetLimitPopup from "./SetLimitPopup.tsx";
 import LimitRequest from "./model/request/LimitRequest.ts";
 
@@ -17,6 +17,28 @@ export default function ExpenseListComponent({expenses, setExpenses, onRemoveExp
 
     const openSetLimitPopup = (name: string) => setOpenSetLimitPopupName(name);
     const closeSetLimitPopup = () => setOpenSetLimitPopupName(null);
+
+    useEffect(() => {
+        const fetchSetLimits = async () => {
+            try {
+                const response = await fetchLimits();
+                console.log("Fetched limits:", response.data); // Вывод данных API
+
+                // Преобразуем массив в объект
+                const limitsObject = response.data.reduce((acc: Record<string, LimitRequest>, limit: LimitRequest) => {
+                    acc[limit.category] = limit;
+                    return acc;
+                }, {});
+
+                setLimits(limitsObject); // Устанавливаем преобразованные лимиты
+            } catch (e) {
+                console.error("Error fetching limits:", e);
+            }
+        };
+        fetchSetLimits();
+    }, []);
+
+
 
     if (expenses.length === 0) {
         return <p className="text-muted text-center">No expenses found for the selected date range.</p>;
@@ -40,10 +62,19 @@ export default function ExpenseListComponent({expenses, setExpenses, onRemoveExp
     };
 
     const handleSetLimit = (requestEntity: LimitRequest) => {
-        setLimits((prev) => ({...prev, [requestEntity.category]: requestEntity}));
+        console.log("Setting limit for:", requestEntity);
+        console.log(requestEntity.currentSpent)
+        createLimit(requestEntity)
+            .then((response) => {
+                console.log("Limit created successfully:", response);
+                setLimits((prev) => ({ ...prev, [requestEntity.category]: requestEntity }));
+            })
+            .catch((error) => {
+                console.error("Error creating limit:", error);
+            });
         closeSetLimitPopup();
-        console.log("Limit Set:", requestEntity);
     };
+
 
     return (
         <div className="container mt-4">

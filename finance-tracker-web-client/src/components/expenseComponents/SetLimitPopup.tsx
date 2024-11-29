@@ -17,7 +17,7 @@ export default function SetLimitPopup({category, show, onSubmit, onClose, curren
                             values.amount,
                             currentSpent,
                             category,
-                            values.startDate,
+                            new Date(),
                             values.endDate)
                     )
                 }}
@@ -25,31 +25,18 @@ export default function SetLimitPopup({category, show, onSubmit, onClose, curren
                 {({isSubmitting}) => (
                     <Form>
 
-                        <div className="mb-2">
-                            <label htmlFor="amount" className="form-label small">Expense amount</label>
-                            <Field
-                                type="number"
-                                id="amount"
-                                name="amount"
-                                className="form-control form-control-sm"
-                                placeholder="Enter amount"
-                            />
-                            <ErrorMessage name="amount" component="div" className="text-danger small"/>
-                        </div>
-
                         <div className="row mb-2">
-                            <div className="col-md-6">
-                                <label htmlFor="startDate" className="form-label small">Start Date</label>
+                            <div className="col mb-2">
+                                <label htmlFor="amount" className="form-label small">Expense amount</label>
                                 <Field
-                                    type="date"
-                                    id="startDate"
-                                    name="startDate"
+                                    type="number"
+                                    id="amount"
+                                    name="amount"
                                     className="form-control form-control-sm"
+                                    placeholder="Enter amount"
                                 />
-                                <ErrorMessage name="startDate" component="div" className="text-danger small"/>
+                                <ErrorMessage name="amount" component="div" className="text-danger small"/>
                             </div>
-
-                            {/* End Date */}
                             <div className="col-md-6">
                                 <label htmlFor="endDate" className="form-label small">End Date</label>
                                 <Field

@@ -1,5 +1,6 @@
 import {expenseApiClient} from "./ServicesApiClients.ts";
 import ExpenseFormFields from "../expenseComponents/model/ExpenseFormFields.ts";
+import LimitRequest from "../expenseComponents/model/request/LimitRequest.ts";
 
 export function findAllExpenses(){
     return expenseApiClient.get("/expenses/listUser");
@@ -16,4 +17,12 @@ export function updateExpense(expenseId:number, expense: ExpenseFormFields){
 
 export function removeExpense(expenseId:number){
     return expenseApiClient.delete("/expenses/delete?expenseId="+expenseId);
+}
+
+export function fetchLimits(){
+    return expenseApiClient.get("/expenses/limits");
+}
+
+export function createLimit(limit: LimitRequest){
+    return expenseApiClient.post("/expenses/limit", limit);
 }

@@ -69,7 +69,10 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         if (categoryLimit.isPresent()) {
             Limit limit = categoryLimit.get();
-            BigDecimal newTotal = limit.getCurrentSpent().add(expenseRequest.getAmount());
+
+            BigDecimal currentSpent = limit.getCurrentSpent() != null ? limit.getCurrentSpent() : BigDecimal.ZERO;
+            BigDecimal amount = expenseRequest.getAmount() != null ? expenseRequest.getAmount() : BigDecimal.ZERO;
+            BigDecimal newTotal = currentSpent.add(amount);
 
             if (limit.isExceeded() || newTotal.compareTo(limit.getLimitAmount()) > 0) {
                 log.warn("Expense limit exceeded for user ID: {}, Category: {}, Limit: {}, Attempted Amount: {}",
@@ -77,10 +80,16 @@ public class ExpenseServiceImpl implements ExpenseService {
 
                 throw new LimitHasBeenExceededException(expenseRequest.getCategory(), limit.getLimitAmount());
             }
+            limit.setCurrentSpent(newTotal);
+
+            limitService.updateLimit(limit);
+
+            log.debug("Updated limit for Category: {}, New CurrentSpent: {}", limit.getCategory(), limit.getCurrentSpent());
         } else {
             log.debug("No category limit found for Category: {}", expenseRequest.getCategory());
         }
     }
+
 
     @Override
     public List<Expense> findAll() {
@@ -121,6 +130,19 @@ public class ExpenseServiceImpl implements ExpenseService {
         log.info("Attempting to delete expense with ID {} for user ID {}", expenseId, userId);
 
         Expense expense = findExpenseByUserIdAndExpenseId(userId, expenseId);
+        Optional<Limit> optionalLimit = limitService.findLimitsByUserId(userId).stream()
+                .filter(limitE -> limitE.getCategory().equals(expense.getCategory()))
+                .findFirst();
+
+        if (optionalLimit.isPresent()) {
+            Limit limit = optionalLimit.get();
+            BigDecimal currentSpent = limit.getCurrentSpent() != null ? limit.getCurrentSpent() : BigDecimal.ZERO;
+            BigDecimal amount = expense.getAmount() != null ? expense.getAmount() : BigDecimal.ZERO;
+            BigDecimal newTotal = currentSpent.subtract(amount);
+            limit.setCurrentSpent(newTotal);
+            limitService.updateLimit(limit);
+        }
+
         expenseRepository.delete(expense);
 
         log.info("Successfully deleted expense with ID {} for user ID {}", expenseId, userId);
@@ -131,18 +153,58 @@ public class ExpenseServiceImpl implements ExpenseService {
         log.info("Attempting to update expense with ID {} for user ID {}", expenseId, userId);
 
         Expense expense = findExpenseByUserIdAndExpenseId(userId, expenseId);
+        updateSpendingLimitIfApplicable(userId, expense, expenseRequest);
+
         updateExpenseDetails(expense, expenseRequest);
+
         expenseRepository.save(expense);
 
         log.info("Successfully updated expense with ID {} for user ID {}", expenseId, userId);
 
-        return new ExpenseResponse(expense.getId(),
+        return createExpenseResponse(expense);
+    }
+
+    private void updateSpendingLimitIfApplicable(long userId, Expense expense, ExpenseRequest expenseRequest) {
+        Optional<Limit> optionalLimit = findLimitForUserAndCategory(userId, expense.getCategory());
+
+        optionalLimit.ifPresent(limit -> {
+            BigDecimal newTotal = calculateNewTotalSpent(limit, expenseRequest, expense);
+            limit.setCurrentSpent(newTotal);
+            limitService.updateLimit(limit);
+        });
+    }
+
+    private Optional<Limit> findLimitForUserAndCategory(long userId, Category category) {
+        return limitService.findLimitsByUserId(userId).stream()
+                .filter(limit -> limit.getCategory().equals(category))
+                .findFirst();
+    }
+
+    private BigDecimal calculateNewTotalSpent(Limit limit, ExpenseRequest expenseRequest, Expense expense) {
+        BigDecimal currentSpent = limit.getCurrentSpent() != null ? limit.getCurrentSpent() : BigDecimal.ZERO;
+        BigDecimal firstAmount = expenseRequest.getAmount() != null ? expenseRequest.getAmount() : BigDecimal.ZERO;
+        BigDecimal secondAmount = expense.getAmount() != null ? expense.getAmount() : BigDecimal.ZERO;
+        BigDecimal finalAmount = currentSpent.subtract(secondAmount).add(firstAmount);
+        if (finalAmount.compareTo(BigDecimal.ZERO) > 0) {
+            log.warn("Expense limit exceeded for user with ID: {}, Category: {}, Limit: {}, Attempted Amount: {}",
+                    limit.getUser().getId(), expenseRequest.getCategory(), limit.getLimitAmount(), expenseRequest.getAmount());
+
+            throw new LimitHasBeenExceededException(expenseRequest.getCategory(), limit.getLimitAmount());
+        }
+        return finalAmount;
+    }
+
+    private ExpenseResponse createExpenseResponse(Expense expense) {
+        return new ExpenseResponse(
+                expense.getId(),
                 expense.getTitle(),
                 expense.getDescription(),
                 expense.getCategory().toString(),
                 expense.getAmount().doubleValue(),
-                expense.getDate());
+                expense.getDate()
+        );
     }
+
 
 
     private Expense findExpenseByUserIdAndExpenseId(long userId, long expenseId) {
