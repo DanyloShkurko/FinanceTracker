@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.example.expensetracker.entity.Category;
 import org.example.expensetracker.entity.Expense;
+import org.example.expensetracker.entity.Limit;
 import org.example.expensetracker.entity.User;
 import org.example.expensetracker.model.exception.AccessDeniedException;
 import org.example.expensetracker.model.request.expense.ExpenseRequest;
@@ -106,6 +107,12 @@ public class ExpenseController {
         limitService.createLimit(request);
         log.info("Limit record created successfully for user ID: {}", request.getUserId());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/limits")
+    public ResponseEntity<List<Limit>> findAllLimits(@RequestHeader("Authorization") String token) {
+        User user = parseToken(token);
+        return ResponseEntity.ok(limitService.findLimitsByUserId(user.getId()));
     }
 
     private User parseToken(String token) {

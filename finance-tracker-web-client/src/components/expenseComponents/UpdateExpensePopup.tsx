@@ -108,6 +108,7 @@ export default function UpdateExpensePopup({ expense, show, onClose, onUpdate}: 
                         >
                             {isSubmitting ? 'Updating...' : 'Update'}
                         </button>
+
                         <button
                             className="btn btn-danger btn-sm w-20 m-2"
                             onClick={onClose}

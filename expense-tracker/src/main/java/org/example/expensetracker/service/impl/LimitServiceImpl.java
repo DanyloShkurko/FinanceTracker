@@ -12,6 +12,7 @@ import org.example.expensetracker.service.LimitService;
 import org.example.expensetracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -93,6 +94,13 @@ public class LimitServiceImpl implements LimitService {
         log.info("Found {} limits for userId {}: {}", limits.size(), userId, limits);
 
         return limits;
+    }
+
+    @Override
+    @Transactional
+    public void updateLimit(Limit limit) {
+        System.out.println(limit);
+        limitRepository.save(limit);
     }
 
     private Limit buildLimitDetails(LimitRequest limitRequest, User user) {
