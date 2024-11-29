@@ -3,7 +3,7 @@ import {ErrorMessage, Field, Form, Formik} from "formik";
 import {createExpense} from "../api/ExpenseApi.ts";
 import ExpenseFormFields from "./model/ExpenseFormFields.ts";
 import {initialValues, validationSchema} from "./model/validation/ExpenseValidation.ts";
-import {PopupProps} from "./model/PopupProps.ts";
+import {PopupProps} from "./model/popupProps/PopupProps.ts";
 import Expense from "./model/Expense.ts";
 
 const CreateExpensePopup: React.FC<PopupProps & { onAddExpense: (expense: Expense) => void }> = ({
