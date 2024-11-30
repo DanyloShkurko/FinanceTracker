@@ -1,0 +1,45 @@
+server:
+  port: 9090
+
+
+spring:
+  application:
+    name: cloud-gateway
+  main:
+    web-application-type: REACTIVE
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:5173"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+      routes:
+        - id: expense-service
+          uri: http://localhost:8080/api/v1/expenses
+          predicates:
+            - Path=/api/v1/expenses/**
+
+        - id: user-service
+          uri: http://localhost:8081/api/v1/user
+          predicates:
+            - Path=/api/v1/user/**
+
+        - id: auth-service
+          uri: http://localhost:8081/api/v1/auth
+          predicates:
+            - Path=/api/v1/auth/**
+
+
+logging:
+  level:
+    org:
+      springframework: trace

@@ -22,7 +22,10 @@ extra["springCloudVersion"] = "2024.0.0-RC1"
 
 dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-gateway-mvc")
+    implementation("org.springframework.cloud:spring-cloud-starter-gateway")
+    implementation("io.netty:netty-resolver-dns-native-macos:4.1.95.Final:osx-aarch_64")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("io.projectreactor:reactor-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
