@@ -1,6 +1,7 @@
 package com.example.user_service.service.impl;
 
 import com.example.user_service.entity.User;
+import com.example.user_service.model.exception.UserNotFoundException;
 import com.example.user_service.model.request.UserUpdateRequest;
 import com.example.user_service.model.response.UserResponse;
 import com.example.user_service.repository.UserRepository;
@@ -9,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,41 +27,38 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> {
                     log.error("User not found with email: {}", email);
-                    return new UsernameNotFoundException("User not found with email: " + email);
+                    return new UserNotFoundException("User not found with email: " + email);
                 });
     }
 
     @Override
-    public UserResponse getUser(Authentication authentication) {
-        String username = authentication.getName();
-        log.info("Fetching user details for authenticated user: {}", username);
+    public UserResponse getUser(String email) {
+        log.info("Fetching user details for authenticated user: {}", email);
 
-        User user = getUserByEmail(username);
+        User user = getUserByEmail(email);
         UserResponse userResponse = modelMapper.map(user, UserResponse.class);
 
-        log.info("User details fetched successfully for username: {}", username);
+        log.info("User details fetched successfully for email: {}", email);
         return userResponse;
     }
 
     @Override
-    public void updateUser(Authentication authentication, UserUpdateRequest updateRequest) {
-        String username = authentication.getName();
-        log.info("Received request to update user details for username: {}", username);
+    public void updateUser(String email, UserUpdateRequest updateRequest) {
+        log.info("Received request to update user details for email: {}", email);
 
-        User user = getUserByEmail(username);
+        User user = getUserByEmail(email);
         updateUserFields(user, updateRequest);
         userRepository.save(user);
 
-        log.info("User details updated successfully for username: {}", username);
+        log.info("User details updated successfully for email: {}", email);
     }
 
     @Override
-    public void removeUser(Authentication authentication) {
-        String username = authentication.getName();
-        log.info("Received request to remove user with username: {}", username);
+    public void removeUser(String email) {
+        log.info("Received request to remove user with email: {}", email);
 
-        userRepository.delete(getUserByEmail(username));
-        log.info("User removed successfully with username: {}", username);
+        userRepository.delete(getUserByEmail(email));
+        log.info("User removed successfully with email: {}", email);
     }
 
     private void updateUserFields(User user, UserUpdateRequest updateRequest) {

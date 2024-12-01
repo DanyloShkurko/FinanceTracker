@@ -1,4 +1,4 @@
-package com.example.user_service.model.response;
+package org.example.authservice.model.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

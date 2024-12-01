@@ -1,8 +1,11 @@
-package com.example.user_service.util;
+package org.example.authservice.util;
 
-import com.example.user_service.model.exception.*;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.example.authservice.model.exception.ExceptionDetails;
+import org.example.authservice.model.exception.ExceptionValidationDetails;
+import org.example.authservice.model.exception.UniqueConstraintException;
+import org.example.authservice.model.exception.UserNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -36,13 +39,6 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return handleExceptionInternal(ex, exceptionDetails, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
-    @ExceptionHandler(value = { TokenNotValidException.class })
-    public ResponseEntity<Object> handleTokenNotValidException(TokenNotValidException ex, WebRequest request) {
-        log.error("TokenNotValidException: {}", ex.getMessage());
-        ExceptionDetails exceptionDetails = buildExceptionDetails(ex, request);
-        return handleExceptionInternal(ex, exceptionDetails, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
-    }
-
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             @NonNull MethodArgumentNotValidException ex,
@@ -50,7 +46,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
             @NonNull HttpStatusCode status,
             @NonNull WebRequest request) {
         log.error("Validation error: {}", ex.getMessage());
-        ExceptionDetails exceptionDetails = buildExceptionDetails(ex, request);
+        ExceptionValidationDetails exceptionDetails = buildExceptionDetails(ex, request);
         return handleExceptionInternal(ex, exceptionDetails, headers, HttpStatus.BAD_REQUEST, request);
     }
 
@@ -63,7 +59,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         );
     }
 
-    private ExceptionDetails buildExceptionDetails(MethodArgumentNotValidException ex, WebRequest request) {
+    private ExceptionValidationDetails buildExceptionDetails(MethodArgumentNotValidException ex, WebRequest request) {
         log.debug("Building validation exception details");
         Map<String, String> validationErrors = new HashMap<>();
 

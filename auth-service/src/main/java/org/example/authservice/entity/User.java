@@ -1,4 +1,4 @@
-package com.example.user_service.entity;
+package org.example.authservice.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -41,4 +41,12 @@ public class User {
     @Column
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @PrePersist
+    public void prePersist() {
+        this.isAccountNonExpired = true;
+        this.isAccountNonLocked = true;
+        this.isCredentialsNonExpired = true;
+        this.isEnabled = true;
+    }
 }
