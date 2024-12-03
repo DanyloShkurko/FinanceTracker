@@ -33,7 +33,7 @@ public class JwtService {
             throw new TokenNotValidException("Token is empty");
         }
         log.debug("Extracting username from token");
-        return extractClaim(token, Claims::getSubject);
+        return extractClaim(token.replace("Bearer ", ""), Claims::getSubject);
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
