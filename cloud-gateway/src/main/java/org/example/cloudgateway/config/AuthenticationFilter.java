@@ -65,7 +65,7 @@ public class AuthenticationFilter implements GatewayFilter {
     }
 
     private boolean isAuthMissing(ServerHttpRequest request) {
-        return !request.getHeaders().containsKey("Authorization");
+        return !request.getHeaders().containsKey("Authorization") && !request.getURI().getPath().contains("/auth");
     }
 
     private void updateRequest(ServerWebExchange exchange, String token) {
