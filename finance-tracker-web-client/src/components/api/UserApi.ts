@@ -1,10 +1,10 @@
-import {userApiClient} from "./ServicesApiClients.ts";
+import {apiClient} from "./ServicesApiClients.ts";
 import UpdateApiRequest from "../userComponents/model/UpdateApiRequest.ts";
 
 export function getUserInfo(){
-    return userApiClient.get(`/user`);
+    return apiClient.get(`/user`);
 }
 
 export function updateUserInfo(request: UpdateApiRequest){
-    return userApiClient.put(`/user/update`, request);
+    return apiClient.put(`/user/update`, request);
 }

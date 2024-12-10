@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$/auth-service" />
+    <file type="web" url="file://$PROJECT_DIR$/cloud-gateway" />
+    <file type="web" url="file://$PROJECT_DIR$/eureka-server" />
     <file type="web" url="file://$PROJECT_DIR$/expense-tracker" />
+    <file type="web" url="file://$PROJECT_DIR$/gateway" />
     <file type="web" url="file://$PROJECT_DIR$/user-service" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="openjdk-21" project-jdk-type="JavaSDK">

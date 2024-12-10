@@ -1,0 +1,37 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: cloud-gateway
+  main:
+    web-application-type: REACTIVE
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:5173"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+
+      default-filters:
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter.replenishRate: 5
+            redis-rate-limiter.burstCapacity: 10
+            key-resolver: "#{@remoteAddressResolver}"
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+jwt:
+  secret: 24b2eb99d299917874343b569d70c9805cc12135ca962235ee5d34552d84073e
