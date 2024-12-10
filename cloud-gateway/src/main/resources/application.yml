@@ -35,3 +35,6 @@ spring:
 
 jwt:
   secret: 24b2eb99d299917874343b569d70c9805cc12135ca962235ee5d34552d84073e
+logging:
+  file:
+    path: logs
