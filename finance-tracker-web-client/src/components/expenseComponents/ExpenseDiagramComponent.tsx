@@ -43,7 +43,7 @@ export default function ExpenseDiagramComponent({ expenses }: ExpenseDiagramComp
     const chartData = filteredData.filter((item) => item.value > 0);
 
     return (
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width="110%">
             <PieChart>
                 <Pie
                     data={chartData}

@@ -1,9 +1,6 @@
 package com.example.user_service.util;
 
-import com.example.user_service.model.exception.ExceptionDetails;
-import com.example.user_service.model.exception.ExceptionValidationDetails;
-import com.example.user_service.model.exception.UniqueConstraintException;
-import com.example.user_service.model.exception.UserNotFoundException;
+import com.example.user_service.model.exception.*;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -37,6 +34,13 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         log.error("UniqueConstraintException: {}", ex.getMessage());
         ExceptionDetails exceptionDetails = buildExceptionDetails(ex, request);
         return handleExceptionInternal(ex, exceptionDetails, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value = { TokenNotValidException.class })
+    public ResponseEntity<Object> handleTokenNotValidException(TokenNotValidException ex, WebRequest request) {
+        log.error("TokenNotValidException: {}", ex.getMessage());
+        ExceptionDetails exceptionDetails = buildExceptionDetails(ex, request);
+        return handleExceptionInternal(ex, exceptionDetails, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
     }
 
     @Override

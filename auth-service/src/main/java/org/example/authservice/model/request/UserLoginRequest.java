@@ -1,4 +1,4 @@
-package com.example.user_service.model.request;
+package org.example.authservice.model.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -12,11 +12,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserSignUpRequest {
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
-    private String username;
-
+public class UserLoginRequest {
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
     private String email;
