@@ -1,5 +1,13 @@
 package org.example.expensetracker.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.example.expensetracker.entity.Category;
@@ -36,9 +44,27 @@ public class ExpenseController {
         this.userService = userService;
     }
 
+    @Operation(
+            summary = "Create a new expense",
+            description = "This endpoint creates a new expense entry for the authenticated user.",
+            security = @SecurityRequirement(name = "Bearer Authentication"),
+            requestBody = @RequestBody(
+                    description = "Expense request payload",
+                    required = true,
+                    content = @Content(
+                            schema = @Schema(implementation = ExpenseRequest.class)
+                    )
+            )
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Expense created successfully",
+                    content = @Content(schema = @Schema(implementation = ExpenseResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
+    })
     @PostMapping("/add")
     public ResponseEntity<ExpenseResponse> createExpense(@RequestHeader("Authorization") String token,
-                                              @RequestBody @Valid ExpenseRequest request) {
+                                                         @RequestBody @Valid ExpenseRequest request) {
         User user = parseToken(token);
         request.setUserId(user.getId());
         log.info("Received request to create expense for user ID: {}", request.getUserId());
@@ -47,6 +73,15 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseResponse);
     }
 
+    @Operation(
+            summary = "Retrieve all expenses",
+            description = "This endpoint retrieves all expenses from the database."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "List of all expenses retrieved successfully",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Expense.class)))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
+    })
     @GetMapping("/list")
     public ResponseEntity<List<Expense>> findAllExpenses() {
         log.info("Received request to find all expenses records.");
@@ -55,6 +90,16 @@ public class ExpenseController {
         return ResponseEntity.ok(expenses);
     }
 
+    @Operation(
+            summary = "Retrieve expenses for a specific user",
+            description = "This endpoint retrieves expenses for the authenticated user.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "List of user-specific expenses retrieved successfully",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Expense.class)))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
+    })
     @GetMapping("/listUser")
     public ResponseEntity<List<Expense>> findExpenseByUserId(@RequestHeader("Authorization") String token) {
         User user = parseToken(token);
@@ -64,6 +109,16 @@ public class ExpenseController {
         return ResponseEntity.ok(expenses);
     }
 
+    @Operation(
+            summary = "Analyze expenses",
+            description = "Analyze expenses within a specific date range and/or category for the authenticated user.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Analyzed expenses retrieved successfully",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Expense.class)))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
+    })
     @GetMapping("/analyze")
     public ResponseEntity<List<Expense>> analyzeExpenses(@RequestHeader("Authorization") String token,
                                                          @RequestParam(value = "from", required = false) LocalDate from,
@@ -76,6 +131,16 @@ public class ExpenseController {
         return ResponseEntity.ok(expenses);
     }
 
+    @Operation(
+            summary = "Delete an expense",
+            description = "Delete a specific expense by ID for the authenticated user.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Expense deleted successfully", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Expense not found", content = @Content)
+    })
     @DeleteMapping("/delete")
     public ResponseEntity<Void> deleteExpense(@RequestHeader("Authorization") String token,
                                               @RequestParam("expenseId") long expenseId) {
@@ -86,10 +151,28 @@ public class ExpenseController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+            summary = "Update an expense",
+            description = "Update the details of an existing expense.",
+            security = @SecurityRequirement(name = "Bearer Authentication"),
+            requestBody = @RequestBody(
+                    description = "Updated expense data",
+                    required = true,
+                    content = @Content(
+                            schema = @Schema(implementation = ExpenseRequest.class)
+                    )
+            )
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Expense updated successfully",
+                    content = @Content(schema = @Schema(implementation = ExpenseResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
+    })
     @PutMapping("/update")
     public ResponseEntity<ExpenseResponse> updateExpense(@RequestHeader("Authorization") String token,
-                                              @RequestParam("expenseId") long expenseId,
-                                              @RequestBody @Valid ExpenseRequest request) {
+                                                         @RequestParam("expenseId") long expenseId,
+                                                         @RequestBody @Valid ExpenseRequest request) {
         User user = parseToken(token);
         log.info("Received request to update expense for user ID: {} with expense ID: {}", user.getId(), expenseId);
         ExpenseResponse expenseResponse = expenseService.updateByUserIdAndExpenseId(user.getId(), expenseId, request);
@@ -97,9 +180,25 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseResponse);
     }
 
+    @Operation(
+            summary = "Set a spending limit",
+            description = "Set a spending limit for a specific user.",
+            security = @SecurityRequirement(name = "Bearer Authentication"),
+            requestBody = @RequestBody(
+                    description = "Limit request data",
+                    required = true,
+                    content = @Content(
+                            schema = @Schema(implementation = LimitRequest.class)
+                    )
+            )
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Spending limit created successfully", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
+    })
     @PostMapping("/limit")
     public ResponseEntity<Void> createLimit(@RequestHeader("Authorization") String token,
-                                                       @RequestBody @Valid LimitRequest request) {
+                                            @RequestBody @Valid LimitRequest request) {
         User user = parseToken(token);
         request.setUserId(user.getId());
         log.info("Received request to limit expense for user ID: {}", request.getUserId());
@@ -108,6 +207,16 @@ public class ExpenseController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+            summary = "Retrieve all spending limits",
+            description = "Retrieve all spending limits for the authenticated user.",
+            security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "List of spending limits retrieved successfully",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Limit.class)))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
+    })
     @GetMapping("/limits")
     public ResponseEntity<List<Limit>> findAllLimits(@RequestHeader("Authorization") String token) {
         User user = parseToken(token);
