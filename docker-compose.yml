@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres-db:
     container_name: expense_tracker_db
@@ -58,7 +56,7 @@ services:
       - redis
     environment:
       - SERVER_PORT=9090
-      - HOST_NAME=cloud-gateway
+      - HOST_NAME=localhost
       - REACT_PORT=5173
       - REDIS_PORT=6379
       - EUREKA_HOST=eureka-server
@@ -138,7 +136,7 @@ services:
     depends_on:
       - cloud-gateway
     environment:
-      - REACT_APP_API_URL=http://cloud-gateway:9090/api/v1
+      - REACT_APP_API_URL=http://localhost:9090/api/v1
     restart: unless-stopped
 
 volumes:
