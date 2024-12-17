@@ -5,5 +5,6 @@ export function loginViaUserService(email: string, password: string) {
 }
 
 export function signupViaUserService(username: string, email: string, password: string) {
+    console.log(apiClient.getUri())
     return apiClient.post(`/auth/signup`, {username, email, password});
 }

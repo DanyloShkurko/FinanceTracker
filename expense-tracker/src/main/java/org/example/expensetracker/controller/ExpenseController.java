@@ -67,6 +67,9 @@ public class ExpenseController {
                                                          @RequestBody @Valid ExpenseRequest request) {
         User user = parseToken(token);
         request.setUserId(user.getId());
+        System.out.println("\n\n\n\n\n\n");
+        System.out.println(request);
+        System.out.println("\n\n\n\n\n\n");
         log.info("Received request to create expense for user ID: {}", request.getUserId());
         ExpenseResponse expenseResponse = expenseService.save(request);
         log.info("Expense record created successfully for user ID: {}", request.getUserId());

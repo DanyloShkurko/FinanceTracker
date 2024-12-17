@@ -1,6 +1,14 @@
 server:
   port: ${SERVER_PORT:9090}
 
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
+  instance:
+    ip-address: ${EUREKA_HOST:localhost}
+
 spring:
   application:
     name: cloud-gateway
@@ -8,15 +16,11 @@ spring:
     web-application-type: REACTIVE
   cloud:
     gateway:
-      eureka:
-        client:
-          serviceUrl:
-            defaultZone: http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka/
       globalcors:
         corsConfigurations:
           '[/**]':
             allowedOrigins:
-              - "http://${HOST_NAME:localhost}:${REACT_PORT:5173}"
+              - "http://localhost:5173"
             allowedMethods:
               - GET
               - POST
@@ -25,6 +29,7 @@ spring:
               - OPTIONS
             allowedHeaders: "*"
             allowCredentials: true
+
 
       default-filters:
         - name: RequestRateLimiter
@@ -39,3 +44,6 @@ spring:
 
 jwt:
   secret: 24b2eb99d299917874343b569d70c9805cc12135ca962235ee5d34552d84073e
+logging:
+  level:
+    org.springframework: trace
