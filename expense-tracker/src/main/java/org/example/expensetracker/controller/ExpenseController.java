@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -44,11 +43,12 @@ public class ExpenseController {
         this.userService = userService;
     }
 
+    @PostMapping("/add")
     @Operation(
             summary = "Create a new expense",
             description = "This endpoint creates a new expense entry for the authenticated user.",
             security = @SecurityRequirement(name = "Bearer Authentication"),
-            requestBody = @RequestBody(
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Expense request payload",
                     required = true,
                     content = @Content(
@@ -62,14 +62,14 @@ public class ExpenseController {
             @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content),
             @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
     })
-    @PostMapping("/add")
     public ResponseEntity<ExpenseResponse> createExpense(@RequestHeader("Authorization") String token,
                                                          @RequestBody @Valid ExpenseRequest request) {
-        User user = parseToken(token);
-        request.setUserId(user.getId());
+
         System.out.println("\n\n\n\n\n\n");
         System.out.println(request);
         System.out.println("\n\n\n\n\n\n");
+        User user = parseToken(token);
+        request.setUserId(user.getId());
         log.info("Received request to create expense for user ID: {}", request.getUserId());
         ExpenseResponse expenseResponse = expenseService.save(request);
         log.info("Expense record created successfully for user ID: {}", request.getUserId());
@@ -158,7 +158,7 @@ public class ExpenseController {
             summary = "Update an expense",
             description = "Update the details of an existing expense.",
             security = @SecurityRequirement(name = "Bearer Authentication"),
-            requestBody = @RequestBody(
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Updated expense data",
                     required = true,
                     content = @Content(
@@ -187,7 +187,7 @@ public class ExpenseController {
             summary = "Set a spending limit",
             description = "Set a spending limit for a specific user.",
             security = @SecurityRequirement(name = "Bearer Authentication"),
-            requestBody = @RequestBody(
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Limit request data",
                     required = true,
                     content = @Content(

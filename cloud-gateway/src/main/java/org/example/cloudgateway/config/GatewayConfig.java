@@ -44,7 +44,10 @@ public class GatewayConfig {
 
     @Bean
     public KeyResolver remoteAddressResolver() {
-        return exchange -> Mono.just(Objects.requireNonNull(exchange.getRequest().getRemoteAddress()).getAddress().getHostAddress());
+        return exchange -> {
+            System.out.println(exchange.getRequest().getBody().blockFirst());
+            return Mono.just(Objects.requireNonNull(exchange.getRequest().getRemoteAddress()).getAddress().getHostAddress());
+        };
     }
 }
 
