@@ -1,0 +1,144 @@
+services:
+  postgres-db:
+    container_name: expense_tracker_db
+    image: postgres:16.2
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=financetracker
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    ports:
+      - "6380:6379"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  eureka-server:
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    image: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - SERVER_PORT=8761
+    restart: unless-stopped
+
+  cloud-gateway:
+    build:
+      context: ./cloud-gateway
+      dockerfile: Dockerfile
+    image: cloud-gateway
+    ports:
+      - "9090:9090"
+    depends_on:
+      - eureka-server
+      - redis
+    environment:
+      - SERVER_PORT=9090
+      - HOST_NAME=localhost
+      - REACT_PORT=5173
+      - REDIS_PORT=6379
+      - EUREKA_HOST=eureka-server
+      - EUREKA_PORT=8761
+    restart: unless-stopped
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    image: auth-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres-db
+      - eureka-server
+    environment:
+      - SERVER_PORT=8082
+      - POSTGRES_USERNAME=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_HOST=postgres-db
+      - POSTGRES_PORT=5432
+      - EUREKA_HOST=eureka-server
+      - EUREKA_PORT=8761
+      - JWT_SECRET=24b2eb99d299917874343b569d70c9805cc12135ca962235ee5d34552d84073e
+    restart: unless-stopped
+
+  expense-tracker:
+    build:
+      context: ./expense-tracker
+      dockerfile: Dockerfile
+    image: expense-tracker
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres-db
+      - eureka-server
+    environment:
+      - SERVER_PORT=8080
+      - POSTGRES_USERNAME=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_HOST=postgres-db
+      - POSTGRES_PORT=5432
+      - EUREKA_HOST=eureka-server
+      - EUREKA_PORT=8761
+      - JWT_SECRET=24b2eb99d299917874343b569d70c9805cc12135ca962235ee5d34552d84073e
+    restart: unless-stopped
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    image: user-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres-db
+      - eureka-server
+    environment:
+      - SERVER_PORT=8081
+      - POSTGRES_USERNAME=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_HOST=postgres-db
+      - POSTGRES_PORT=5432
+      - EUREKA_HOST=eureka-server
+      - EUREKA_PORT=8761
+      - JWT_SECRET=24b2eb99d299917874343b569d70c9805cc12135ca962235ee5d34552d84073e
+    restart: unless-stopped
+
+  finance-tracker-web-client:
+    build:
+      context: ./finance-tracker-web-client
+      dockerfile: Dockerfile
+    image: finance-tracker-web-client
+    ports:
+      - "5173:5173"
+    depends_on:
+      - cloud-gateway
+    environment:
+      - REACT_APP_API_URL=http://localhost:9090/api/v1
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+  postgres-data:

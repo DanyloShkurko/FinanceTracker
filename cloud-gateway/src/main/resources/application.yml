@@ -1,5 +1,13 @@
 server:
-  port: 9090
+  port: ${SERVER_PORT:9090}
+
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
+  instance:
+    ip-address: ${EUREKA_HOST:localhost}
 
 spring:
   application:
@@ -22,6 +30,7 @@ spring:
             allowedHeaders: "*"
             allowCredentials: true
 
+
       default-filters:
         - name: RequestRateLimiter
           args:
@@ -31,7 +40,7 @@ spring:
   data:
     redis:
       host: localhost
-      port: 6379
+      port: ${REDIS_PORT:6379}
 
 jwt:
   secret: 24b2eb99d299917874343b569d70c9805cc12135ca962235ee5d34552d84073e
