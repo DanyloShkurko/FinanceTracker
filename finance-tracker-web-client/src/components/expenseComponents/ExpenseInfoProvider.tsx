@@ -41,10 +41,13 @@ export default function ExpenseInfoProvider() {
         setFilteredExpenses(filtered);
     }
 
-    function handleUpdatingExpenses(expense: Expense) {
-        setExpenses((prev) => [...prev, expense]);
-        setFilteredExpenses((prev) => [...prev, expense]);
+    function handleUpdatingExpenses(updatedExpense: Expense) {
+        setExpenses((prev) => prev.filter(expense => expense.id !== updatedExpense.id));
+        setExpenses((prev) => [...prev, updatedExpense]);
+        setFilteredExpenses((prev) => prev.filter(expense => expense.id !== updatedExpense.id));
+        setFilteredExpenses((prev) => [...prev, updatedExpense]);
     }
+
 
     function handleDeletingExpense(id: number) {
         setExpenses((prev) => prev.filter((expense) => expense.id !== id));
