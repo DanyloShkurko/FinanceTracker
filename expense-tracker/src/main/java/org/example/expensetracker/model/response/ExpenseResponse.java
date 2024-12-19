@@ -53,4 +53,16 @@ public class ExpenseResponse {
             example = "2023-11-18"
     )
     private LocalDate date;
+
+    @Override
+    public String toString() {
+        return "ExpenseResponse{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", category='" + category + '\'' +
+                ", amount=" + amount +
+                ", date=" + date +
+                '}';
+    }
 }

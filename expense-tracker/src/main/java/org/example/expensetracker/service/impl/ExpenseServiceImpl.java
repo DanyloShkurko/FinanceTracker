@@ -44,10 +44,12 @@ public class ExpenseServiceImpl implements ExpenseService {
         checkLimitExceeded(userLimits, expenseRequest);
 
         Expense expense = buildExpenseEntity(expenseRequest, user);
-        expenseRepository.save(expense);
+        System.out.println("Actual: " + expense);
+        expense = expenseRepository.save(expense);
 
         log.info("Expense record saved successfully for user ID: {}, Category: {}, Amount: {}",
                 user.getId(), expenseRequest.getCategory(), expenseRequest.getAmount());
+
 
         return new ExpenseResponse(expense.getId(),
                 expense.getTitle(),
