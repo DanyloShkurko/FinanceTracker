@@ -99,7 +99,6 @@ public class LimitServiceImpl implements LimitService {
     @Override
     @Transactional
     public void updateLimit(Limit limit) {
-        System.out.println(limit);
         limitRepository.save(limit);
     }
 
