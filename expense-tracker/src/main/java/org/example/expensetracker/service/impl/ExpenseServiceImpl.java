@@ -44,7 +44,6 @@ public class ExpenseServiceImpl implements ExpenseService {
         checkLimitExceeded(userLimits, expenseRequest);
 
         Expense expense = buildExpenseEntity(expenseRequest, user);
-        System.out.println("Actual: " + expense);
         expense = expenseRepository.save(expense);
 
         log.info("Expense record saved successfully for user ID: {}, Category: {}, Amount: {}",
@@ -94,13 +93,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
 
     @Override
-    public List<Expense> findAll() {
-        log.info("Fetching all expense records...");
-        return expenseRepository.findAll();
-    }
-
-    @Override
-    public List<Expense> findByUserId(long userId) {
+    public List<Expense> findExpensesByUserId(long userId) {
         log.info("Fetching expense records for user ID: {}", userId);
 
         userService.findUserById(userId);
@@ -117,9 +110,14 @@ public class ExpenseServiceImpl implements ExpenseService {
     public List<Expense> analyzeExpenses(LocalDate from, LocalDate to, Category category, long userId) {
         log.info("Starting analysis of expenses for user ID: {} with date range from: {} to: {} and category: {}", userId, from, to, category);
 
-        List<Expense> expenses = findByUserId(userId).stream()
-                .filter(expense -> (from == null || (expense.getDate().isAfter(from)) || expense.getDate().isEqual(from)) &&
-                        (to == null || (expense.getDate().isBefore(to) || expense.getDate().isEqual(to))) &&
+        userService.findUserById(userId);
+
+        List<Expense> expenses = findExpensesByUserId(userId).stream()
+                .filter(expense ->
+                        (from == null || (expense.getDate().isAfter(from)) || expense.getDate().isEqual(from))
+                                &&
+                        (to == null || (expense.getDate().isBefore(to) || expense.getDate().isEqual(to)))
+                                &&
                         (category == null || expense.getCategory().equals(category)))
                 .toList();
 
@@ -210,7 +208,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
 
     private Expense findExpenseByUserIdAndExpenseId(long userId, long expenseId) {
-        return findByUserId(userId).stream()
+        return findExpensesByUserId(userId).stream()
                 .filter(expense -> expense.getId() == expenseId)
                 .findFirst()
                 .orElseThrow(() -> {

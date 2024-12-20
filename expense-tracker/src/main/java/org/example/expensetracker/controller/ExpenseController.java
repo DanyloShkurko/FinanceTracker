@@ -74,23 +74,6 @@ public class ExpenseController {
     }
 
     @Operation(
-            summary = "Retrieve all expenses",
-            description = "This endpoint retrieves all expenses from the database."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "List of all expenses retrieved successfully",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Expense.class)))),
-            @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
-    })
-    @GetMapping("/list")
-    public ResponseEntity<List<Expense>> findAllExpenses() {
-        log.info("Received request to find all expenses records.");
-        List<Expense> expenses = expenseService.findAll();
-        log.info("Expense records found: {}", expenses);
-        return ResponseEntity.ok(expenses);
-    }
-
-    @Operation(
             summary = "Retrieve expenses for a specific user",
             description = "This endpoint retrieves expenses for the authenticated user.",
             security = @SecurityRequirement(name = "Bearer Authentication")
@@ -101,10 +84,10 @@ public class ExpenseController {
             @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
     })
     @GetMapping("/listUser")
-    public ResponseEntity<List<Expense>> findExpenseByUserId(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<List<Expense>> findExpensesByUserId(@RequestHeader("Authorization") String token) {
         User user = parseToken(token);
         log.info("Received request to find expenses for user ID: {}", user.getId());
-        List<Expense> expenses = expenseService.findByUserId(parseToken(token).getId());
+        List<Expense> expenses = expenseService.findExpensesByUserId(parseToken(token).getId());
         log.info("Expense records found: {} \n by user id: {}", expenses, user.getId());
         return ResponseEntity.ok(expenses);
     }
