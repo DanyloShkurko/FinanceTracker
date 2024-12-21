@@ -169,6 +169,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         optionalLimit.ifPresent(limit -> {
             BigDecimal newTotal = calculateNewTotalSpent(limit, expenseRequest, expense);
+            System.out.println(newTotal);
             limit.setCurrentSpent(newTotal);
             limitService.updateLimit(limit);
         });

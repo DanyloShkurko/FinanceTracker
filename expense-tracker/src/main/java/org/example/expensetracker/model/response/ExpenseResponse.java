@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 
 @Getter
@@ -64,5 +65,17 @@ public class ExpenseResponse {
                 ", amount=" + amount +
                 ", date=" + date +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ExpenseResponse that = (ExpenseResponse) o;
+        return id == that.id && Double.compare(amount, that.amount) == 0 && Objects.equals(title, that.title) && Objects.equals(description, that.description) && Objects.equals(category, that.category) && Objects.equals(date, that.date);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, description, category, amount, date);
     }
 }

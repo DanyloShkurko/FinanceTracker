@@ -4,6 +4,7 @@ import org.example.expensetracker.entity.Category;
 import org.example.expensetracker.entity.Expense;
 import org.example.expensetracker.entity.Limit;
 import org.example.expensetracker.entity.User;
+import org.example.expensetracker.model.exception.ExpenseNotFoundException;
 import org.example.expensetracker.model.exception.LimitHasBeenExceededException;
 import org.example.expensetracker.model.request.expense.ExpenseRequest;
 import org.example.expensetracker.model.response.ExpenseResponse;
@@ -43,7 +44,7 @@ class ExpenseServiceImplTest {
     private ExpenseServiceImpl expenseService;
 
     private User mockUser;
-    private ExpenseRequest expenseRequest;
+    private ExpenseRequest mockedExpenseRequest;
     private List<Expense> mockedExpenses;
 
 
@@ -56,7 +57,7 @@ class ExpenseServiceImplTest {
                 "user@gmail.com"
         );
 
-        this.expenseRequest = new ExpenseRequest(
+        this.mockedExpenseRequest = new ExpenseRequest(
                 "New expense",
                 "New expense description",
                 new BigDecimal(21),
@@ -101,12 +102,16 @@ class ExpenseServiceImplTest {
 /*##################################################### SAVE FUNCTION TEST #####################################################*/
     @Test
     void whenSave_withNoLimits_positiveScenario() {
-        Expense expectedExpense = buildExpenseEntity(expenseRequest, mockUser);
+        Expense expectedExpense = buildExpenseEntity(mockedExpenseRequest, mockUser);
 
-        Mockito.when(userService.findUserById(mockUser.getId())).thenReturn(mockUser);
-        Mockito.when(limitService.findLimitsByUserId(mockUser.getId())).thenReturn(Collections.emptyList());
+        Mockito.when(userService.findUserById(mockUser.getId()))
+                .thenReturn(mockUser);
 
-        Mockito.when(expenseRepository.save(Mockito.any(Expense.class))).thenAnswer(invocation -> {
+        Mockito.when(limitService.findLimitsByUserId(mockUser.getId()))
+                .thenReturn(Collections.emptyList());
+
+        Mockito.when(expenseRepository.save(Mockito.any(Expense.class)))
+                .thenAnswer(invocation -> {
             Expense savedExpense = invocation.getArgument(0);
             savedExpense.setId(1L);
             return savedExpense;
@@ -121,10 +126,13 @@ class ExpenseServiceImplTest {
                 expectedExpense.getDate()
         );
 
-        ExpenseResponse actualResponse = expenseService.save(expenseRequest);
+        ExpenseResponse actualResponse = expenseService.save(mockedExpenseRequest);
 
-        Mockito.verify(userService, Mockito.times(1)).findUserById(mockUser.getId());
-        Mockito.verify(expenseRepository, Mockito.times(1)).save(Mockito.argThat(expense ->
+        Mockito.verify(userService, Mockito.times(1))
+                .findUserById(mockUser.getId());
+
+        Mockito.verify(expenseRepository, Mockito.times(1))
+                .save(Mockito.argThat(expense ->
                 expense.getTitle().equals(expectedExpense.getTitle()) &&
                         expense.getDescription().equals(expectedExpense.getDescription()) &&
                         expense.getAmount().equals(expectedExpense.getAmount()) &&
@@ -154,12 +162,16 @@ class ExpenseServiceImplTest {
                         mockUser
                 ));
 
-        Expense expectedExpense = buildExpenseEntity(expenseRequest, mockUser);
+        Expense expectedExpense = buildExpenseEntity(mockedExpenseRequest, mockUser);
 
-        Mockito.when(userService.findUserById(mockUser.getId())).thenReturn(mockUser);
-        Mockito.when(limitService.findLimitsByUserId(mockUser.getId())).thenReturn(limits);
+        Mockito.when(userService.findUserById(mockUser.getId()))
+                .thenReturn(mockUser);
 
-        Mockito.when(expenseRepository.save(Mockito.any(Expense.class))).thenAnswer(invocation -> {
+        Mockito.when(limitService.findLimitsByUserId(mockUser.getId()))
+                .thenReturn(limits);
+
+        Mockito.when(expenseRepository.save(Mockito.any(Expense.class)))
+                .thenAnswer(invocation -> {
             Expense savedExpense = invocation.getArgument(0);
             savedExpense.setId(1L);
             return savedExpense;
@@ -174,19 +186,23 @@ class ExpenseServiceImplTest {
                 expectedExpense.getDate()
         );
 
-        ExpenseResponse actualResponse = expenseService.save(expenseRequest);
+        ExpenseResponse actualResponse = expenseService.save(mockedExpenseRequest);
 
-        Mockito.verify(userService, Mockito.times(1)).findUserById(mockUser.getId());
-        Mockito.verify(expenseRepository, Mockito.times(1)).save(Mockito.argThat(expense ->
+        Mockito.verify(userService, Mockito.times(1))
+                .findUserById(mockUser.getId());
+
+        Mockito.verify(expenseRepository, Mockito.times(1))
+                .save(Mockito.argThat(expense ->
                 expense.getTitle().equals(expectedExpense.getTitle()) &&
                         expense.getDescription().equals(expectedExpense.getDescription()) &&
                         expense.getAmount().equals(expectedExpense.getAmount()) &&
                         expense.getDate().equals(expectedExpense.getDate())
         ));
 
-        limits.getFirst().setCurrentSpent(expenseRequest.getAmount());
+        limits.getFirst().setCurrentSpent(mockedExpenseRequest.getAmount());
 
-        Mockito.verify(limitService, Mockito.times(1)).updateLimit(limits.getFirst());
+        Mockito.verify(limitService, Mockito.times(1))
+                .updateLimit(limits.getFirst());
 
         assertEquals(expected.getId(), actualResponse.getId());
         assertEquals(expected.getTitle(), actualResponse.getTitle());
@@ -213,7 +229,7 @@ class ExpenseServiceImplTest {
         Mockito.when(userService.findUserById(mockUser.getId())).thenReturn(mockUser);
         Mockito.when(limitService.findLimitsByUserId(mockUser.getId())).thenReturn(limits);
 
-        assertThrows(LimitHasBeenExceededException.class, () -> expenseService.save(expenseRequest));
+        assertThrows(LimitHasBeenExceededException.class, () -> expenseService.save(mockedExpenseRequest));
     }
 
 /*############################################################# END #############################################################*/
@@ -262,10 +278,14 @@ class ExpenseServiceImplTest {
         Mockito.when(userService.findUserById(mockUser.getId())).thenReturn(mockUser);
         Mockito.when(expenseService.findExpensesByUserId(mockUser.getId())).thenReturn(mockedExpenses);
 
-        List<Expense> actual = expenseService.analyzeExpenses(mockFrom, mockTo, mockCategory, mockUser.getId());
+        List<Expense> actual = expenseService
+                .analyzeExpenses(mockFrom, mockTo, mockCategory, mockUser.getId());
 
-        Mockito.verify(userService, Mockito.times(2)).findUserById(mockUser.getId());
-        Mockito.verify(expenseService, Mockito.times(1)).findExpensesByUserId(mockUser.getId());
+        Mockito.verify(userService, Mockito.times(2))
+                .findUserById(mockUser.getId());
+
+        Mockito.verify(expenseService, Mockito.times(1))
+                .findExpensesByUserId(mockUser.getId());
 
         assertNotNull(actual);
         assertEquals(actual.getFirst().getId(), mockedExpenses.get(2).getId());
@@ -285,10 +305,14 @@ class ExpenseServiceImplTest {
         Mockito.when(userService.findUserById(mockUser.getId())).thenReturn(mockUser);
         Mockito.when(expenseService.findExpensesByUserId(mockUser.getId())).thenReturn(mockedExpenses);
 
-        List<Expense> actual = expenseService.analyzeExpenses(null, mockTo, mockCategory, mockUser.getId());
+        List<Expense> actual = expenseService
+                .analyzeExpenses(null, mockTo, mockCategory, mockUser.getId());
 
-        Mockito.verify(userService, Mockito.times(2)).findUserById(mockUser.getId());
-        Mockito.verify(expenseService, Mockito.times(1)).findExpensesByUserId(mockUser.getId());
+        Mockito.verify(userService, Mockito.times(2))
+                .findUserById(mockUser.getId());
+
+        Mockito.verify(expenseService, Mockito.times(1))
+                .findExpensesByUserId(mockUser.getId());
 
         assertNotNull(actual);
         assertEquals(1, actual.size());
@@ -302,10 +326,14 @@ class ExpenseServiceImplTest {
         Mockito.when(userService.findUserById(mockUser.getId())).thenReturn(mockUser);
         Mockito.when(expenseService.findExpensesByUserId(mockUser.getId())).thenReturn(mockedExpenses);
 
-        List<Expense> actual = expenseService.analyzeExpenses(null, null, mockCategory, mockUser.getId());
+        List<Expense> actual = expenseService
+                .analyzeExpenses(null, null, mockCategory, mockUser.getId());
 
-        Mockito.verify(userService, Mockito.times(2)).findUserById(mockUser.getId());
-        Mockito.verify(expenseService, Mockito.times(1)).findExpensesByUserId(mockUser.getId());
+        Mockito.verify(userService, Mockito.times(2))
+                .findUserById(mockUser.getId());
+
+        Mockito.verify(expenseService, Mockito.times(1))
+                .findExpensesByUserId(mockUser.getId());
 
         assertNotNull(actual);
         assertEquals(1, actual.size());
@@ -317,10 +345,14 @@ class ExpenseServiceImplTest {
         Mockito.when(userService.findUserById(mockUser.getId())).thenReturn(mockUser);
         Mockito.when(expenseService.findExpensesByUserId(mockUser.getId())).thenReturn(mockedExpenses);
 
-        List<Expense> actual = expenseService.analyzeExpenses(null, null, null, mockUser.getId());
+        List<Expense> actual = expenseService
+                .analyzeExpenses(null, null, null, mockUser.getId());
 
-        Mockito.verify(userService, Mockito.times(2)).findUserById(mockUser.getId());
-        Mockito.verify(expenseService, Mockito.times(1)).findExpensesByUserId(mockUser.getId());
+        Mockito.verify(userService, Mockito.times(2))
+                .findUserById(mockUser.getId());
+
+        Mockito.verify(expenseService, Mockito.times(1))
+                .findExpensesByUserId(mockUser.getId());
 
         assertNotNull(actual);
         assertEquals(3, actual.size());
@@ -335,10 +367,14 @@ class ExpenseServiceImplTest {
         Mockito.when(userService.findUserById(mockUser.getId())).thenReturn(mockUser);
         Mockito.when(expenseService.findExpensesByUserId(mockUser.getId())).thenReturn(mockedExpenses);
 
-        List<Expense> actual = expenseService.analyzeExpenses(null, mockTo, null, mockUser.getId());
+        List<Expense> actual = expenseService
+                .analyzeExpenses(null, mockTo, null, mockUser.getId());
 
-        Mockito.verify(userService, Mockito.times(2)).findUserById(mockUser.getId());
-        Mockito.verify(expenseService, Mockito.times(1)).findExpensesByUserId(mockUser.getId());
+        Mockito.verify(userService, Mockito.times(2))
+                .findUserById(mockUser.getId());
+
+        Mockito.verify(expenseService, Mockito.times(1))
+                .findExpensesByUserId(mockUser.getId());
 
         assertNotNull(actual);
         assertEquals(3, actual.size());
@@ -353,10 +389,14 @@ class ExpenseServiceImplTest {
         Mockito.when(userService.findUserById(mockUser.getId())).thenReturn(mockUser);
         Mockito.when(expenseService.findExpensesByUserId(mockUser.getId())).thenReturn(mockedExpenses);
 
-        List<Expense> actual = expenseService.analyzeExpenses(mockFrom, null, null, mockUser.getId());
+        List<Expense> actual = expenseService
+                .analyzeExpenses(mockFrom, null, null, mockUser.getId());
 
-        Mockito.verify(userService, Mockito.times(2)).findUserById(mockUser.getId());
-        Mockito.verify(expenseService, Mockito.times(1)).findExpensesByUserId(mockUser.getId());
+        Mockito.verify(userService, Mockito.times(2))
+                .findUserById(mockUser.getId());
+
+        Mockito.verify(expenseService, Mockito.times(1))
+                .findExpensesByUserId(mockUser.getId());
 
         assertNotNull(actual);
         assertEquals(2, actual.size());
@@ -370,26 +410,152 @@ class ExpenseServiceImplTest {
     void whenAnalyzeExpenses_withoutExpenses_positiveScenario() {
         LocalDate mockFrom = LocalDate.now().plusDays(1);
         LocalDate mockTo = LocalDate.now().plusDays(2);
-        Mockito.when(userService.findUserById(mockUser.getId())).thenReturn(mockUser);
-        Mockito.when(expenseService.findExpensesByUserId(mockUser.getId())).thenReturn(mockedExpenses);
 
-        List<Expense> actual = expenseService.analyzeExpenses(mockFrom, mockTo, Category.EDUCATION, mockUser.getId());
+        Mockito.when(userService.findUserById(mockUser.getId()))
+                .thenReturn(mockUser);
 
-        Mockito.verify(userService, Mockito.times(2)).findUserById(mockUser.getId());
-        Mockito.verify(expenseService, Mockito.times(1)).findExpensesByUserId(mockUser.getId());
+        Mockito.when(expenseService.findExpensesByUserId(mockUser.getId()))
+                .thenReturn(mockedExpenses);
+
+        List<Expense> actual = expenseService
+                .analyzeExpenses(mockFrom, mockTo, Category.EDUCATION, mockUser.getId());
+
+        Mockito.verify(userService, Mockito.times(2))
+                .findUserById(mockUser.getId());
+
+        Mockito.verify(expenseService, Mockito.times(1))
+                .findExpensesByUserId(mockUser.getId());
 
         assertNotNull(actual);
         assertEquals(0, actual.size());
     }
+/*############################################################# END #############################################################*/
 
-
+/*############################################# DELETE BY USER AND EXPENSE ID TEST #############################################*/
     @Test
-    void deleteByUserIdAndExpenseId() {
+    void whenDeleteByUserIdAndExpenseId_withCorrectParams_positiveScenario() {
+        long mockUserId = mockUser.getId();
+        long mockExpenseId = mockedExpenses.getFirst().getId();
+
+        Limit mockLimit = new Limit(
+                1,
+                new BigDecimal(21),
+                new BigDecimal(21),
+                false,
+                Category.EDUCATION,
+                LocalDate.now().minusMonths(1),
+                LocalDate.now().plusDays(1),
+                mockUser
+        );
+
+        Mockito.when(expenseService.findExpensesByUserId(mockUserId))
+                .thenReturn(Collections.singletonList(mockedExpenses.getFirst()));
+
+        Mockito.when(limitService.findLimitsByUserId(mockUserId))
+                .thenReturn(Collections.singletonList(mockLimit));
+
+        mockLimit.setCurrentSpent(new BigDecimal(0));
+
+        expenseService.deleteByUserIdAndExpenseId(mockUserId, mockExpenseId);
+
+        Mockito.verify(userService, Mockito.times(1))
+                .findUserById(mockUserId);
+
+        Mockito.verify(limitService, Mockito.times(1))
+                .findLimitsByUserId(mockUserId);
+
+        Mockito.verify(limitService, Mockito.times(1))
+                .updateLimit(mockLimit);
+
+        Mockito.verify(expenseRepository, Mockito.times(1))
+                .delete(mockedExpenses.getFirst());
     }
 
     @Test
-    void updateByUserIdAndExpenseId() {
+    void whenDeleteByUserIdAndExpenseId_withWrongUserId_negativeScenario() {
+        long mockUserId = 23;
+        long mockExpenseId = mockedExpenses.getFirst().getId();
+
+        assertThrows(ExpenseNotFoundException.class,
+                () -> expenseService.deleteByUserIdAndExpenseId(mockUserId, mockExpenseId));
+
+        Mockito.verify(userService, Mockito.times(1))
+                .findUserById(mockUserId);
+
+        Mockito.verify(expenseRepository, Mockito.times(1))
+                .findAll();
     }
+
+    @Test
+    void whenDeleteByUserIdAndExpenseId_withWrongExpenseId_negativeScenario() {
+        long mockUserId = mockUser.getId();
+        long mockExpenseId = -1;
+
+        Mockito.when(expenseRepository.findAll()).thenReturn(mockedExpenses);
+
+        assertThrows(ExpenseNotFoundException.class,
+                () -> expenseService.deleteByUserIdAndExpenseId(mockUserId, mockExpenseId));
+
+        Mockito.verify(userService, Mockito.times(1))
+                .findUserById(mockUserId);
+
+        Mockito.verify(expenseRepository, Mockito.times(1))
+                .findAll();
+    }
+/*############################################################# END #############################################################*/
+
+/*######################################### UPDATE EXPENSE BY USER AND EXPENSE ID TEST #########################################*/
+
+    @Test
+    void whenUpdateByUserIdAndExpenseId_withCorrectParams_positiveScenario() {
+        long mockUserId = mockUser.getId();
+        long mockExpenseId = mockedExpenses.getFirst().getId();
+
+        Limit mockLimit = new Limit(
+                1,
+                new BigDecimal(29),
+                new BigDecimal(29),
+                false,
+                Category.EDUCATION,
+                LocalDate.now().minusMonths(1),
+                LocalDate.now().plusDays(1),
+                mockUser
+        );
+
+        Mockito.when(expenseRepository.findAll()).thenReturn(mockedExpenses);
+        Mockito.when(limitService.findLimitsByUserId(mockUserId))
+                .thenReturn(Collections.singletonList(mockLimit));
+
+        mockedExpenseRequest.setAmount(new BigDecimal(0));
+
+        ExpenseResponse actual = expenseService
+                .updateByUserIdAndExpenseId(mockUserId, mockExpenseId, mockedExpenseRequest);
+
+
+        ExpenseResponse expected = new ExpenseResponse(
+                mockExpenseId,
+                mockedExpenseRequest.getTitle(),
+                mockedExpenseRequest.getDescription(),
+                mockedExpenseRequest.getCategory().toString(),
+                mockedExpenseRequest.getAmount().intValue(),
+                mockedExpenseRequest.getDate()
+        );
+
+        assertEquals(expected, actual);
+
+        Mockito.verify(expenseRepository, Mockito.times(1))
+                .save(Mockito.any(Expense.class));
+
+        BigDecimal expectedNewSpent = mockLimit.getCurrentSpent()
+                .subtract(mockedExpenses.getFirst().getAmount())
+                .add(mockedExpenseRequest.getAmount());
+
+        assertEquals(expectedNewSpent, mockLimit.getCurrentSpent());
+
+        Mockito.verify(limitService, Mockito.times(1))
+                .updateLimit(mockLimit);
+    }
+
 
     private Expense buildExpenseEntity(ExpenseRequest request, User user) {
         return new Expense(
