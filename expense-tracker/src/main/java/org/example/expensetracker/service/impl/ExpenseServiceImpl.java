@@ -83,7 +83,7 @@ public class ExpenseServiceImpl implements ExpenseService {
             }
             limit.setCurrentSpent(newTotal);
 
-            limitService.updateLimit(limit);
+            limitService.updateLimit(limit, expenseRequest.getUserId());
 
             log.debug("Updated limit for Category: {}, New CurrentSpent: {}", limit.getCategory(), limit.getCurrentSpent());
         } else {
@@ -140,7 +140,7 @@ public class ExpenseServiceImpl implements ExpenseService {
             BigDecimal amount = expense.getAmount() != null ? expense.getAmount() : BigDecimal.ZERO;
             BigDecimal newTotal = currentSpent.subtract(amount);
             limit.setCurrentSpent(newTotal);
-            limitService.updateLimit(limit);
+            limitService.updateLimit(limit, userId);
         }
 
         expenseRepository.delete(expense);
@@ -171,7 +171,7 @@ public class ExpenseServiceImpl implements ExpenseService {
             BigDecimal newTotal = calculateNewTotalSpent(limit, expenseRequest, expense);
             System.out.println(newTotal);
             limit.setCurrentSpent(newTotal);
-            limitService.updateLimit(limit);
+            limitService.updateLimit(limit, userId);
         });
     }
 

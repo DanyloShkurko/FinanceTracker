@@ -41,6 +41,11 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return handleExceptionInternal(ex, buildExceptionDetails(ex, request), new HttpHeaders(), HttpStatus.FORBIDDEN, request);
     }
 
+    @ExceptionHandler(value = { WrongLimitDetailsException.class })
+    protected ResponseEntity<Object> handleWrongLimitDetailsException(WrongLimitDetailsException ex, WebRequest request) {
+        return handleExceptionInternal(ex, buildExceptionDetails(ex, request), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException ex,
                                                                   @NonNull HttpHeaders headers,
