@@ -99,7 +99,7 @@ class ExpenseServiceImplTest {
         this.mockedExpenses = List.of(mockExpense1, mockExpense2, mockExpense3);
     }
 
-/*##################################################### SAVE FUNCTION TEST #####################################################*/
+    /*##################################################### SAVE FUNCTION TEST #####################################################*/
     @Test
     void whenSave_withNoLimits_positiveScenario() {
         Expense expectedExpense = buildExpenseEntity(mockedExpenseRequest, mockUser);
@@ -112,10 +112,10 @@ class ExpenseServiceImplTest {
 
         Mockito.when(expenseRepository.save(Mockito.any(Expense.class)))
                 .thenAnswer(invocation -> {
-            Expense savedExpense = invocation.getArgument(0);
-            savedExpense.setId(1L);
-            return savedExpense;
-        });
+                    Expense savedExpense = invocation.getArgument(0);
+                    savedExpense.setId(1L);
+                    return savedExpense;
+                });
 
         ExpenseResponse expectedResponse = new ExpenseResponse(
                 1,
@@ -133,11 +133,11 @@ class ExpenseServiceImplTest {
 
         Mockito.verify(expenseRepository, Mockito.times(1))
                 .save(Mockito.argThat(expense ->
-                expense.getTitle().equals(expectedExpense.getTitle()) &&
-                        expense.getDescription().equals(expectedExpense.getDescription()) &&
-                        expense.getAmount().equals(expectedExpense.getAmount()) &&
-                        expense.getDate().equals(expectedExpense.getDate())
-        ));
+                        expense.getTitle().equals(expectedExpense.getTitle()) &&
+                                expense.getDescription().equals(expectedExpense.getDescription()) &&
+                                expense.getAmount().equals(expectedExpense.getAmount()) &&
+                                expense.getDate().equals(expectedExpense.getDate())
+                ));
 
 
         assertEquals(expectedResponse.getId(), actualResponse.getId());
@@ -172,10 +172,10 @@ class ExpenseServiceImplTest {
 
         Mockito.when(expenseRepository.save(Mockito.any(Expense.class)))
                 .thenAnswer(invocation -> {
-            Expense savedExpense = invocation.getArgument(0);
-            savedExpense.setId(1L);
-            return savedExpense;
-        });
+                    Expense savedExpense = invocation.getArgument(0);
+                    savedExpense.setId(1L);
+                    return savedExpense;
+                });
 
         ExpenseResponse expected = new ExpenseResponse(
                 1,
@@ -193,11 +193,11 @@ class ExpenseServiceImplTest {
 
         Mockito.verify(expenseRepository, Mockito.times(1))
                 .save(Mockito.argThat(expense ->
-                expense.getTitle().equals(expectedExpense.getTitle()) &&
-                        expense.getDescription().equals(expectedExpense.getDescription()) &&
-                        expense.getAmount().equals(expectedExpense.getAmount()) &&
-                        expense.getDate().equals(expectedExpense.getDate())
-        ));
+                        expense.getTitle().equals(expectedExpense.getTitle()) &&
+                                expense.getDescription().equals(expectedExpense.getDescription()) &&
+                                expense.getAmount().equals(expectedExpense.getAmount()) &&
+                                expense.getDate().equals(expectedExpense.getDate())
+                ));
 
         limits.getFirst().setCurrentSpent(mockedExpenseRequest.getAmount());
 
@@ -232,9 +232,9 @@ class ExpenseServiceImplTest {
         assertThrows(LimitHasBeenExceededException.class, () -> expenseService.save(mockedExpenseRequest));
     }
 
-/*############################################################# END #############################################################*/
+    /*############################################################# END #############################################################*/
 
-/*################################################ FIND EXPENSES BY USER ID TEST ################################################*/
+    /*################################################ FIND EXPENSES BY USER ID TEST ################################################*/
     @Test
     void whenFindExpensesByUserId_withUserAndExpenses_positiveScenario() {
         Mockito.when(userService.findUserById(mockUser.getId())).thenReturn(mockUser);
@@ -267,7 +267,7 @@ class ExpenseServiceImplTest {
         assertEquals(actual, Collections.emptyList());
     }
 
-/*############################################################# END #############################################################*/
+    /*############################################################# END #############################################################*/
 
     @Test
     void whenAnalyzeExpenses_withAllData_positiveScenario() {
@@ -429,9 +429,9 @@ class ExpenseServiceImplTest {
         assertNotNull(actual);
         assertEquals(0, actual.size());
     }
-/*############################################################# END #############################################################*/
+    /*############################################################# END #############################################################*/
 
-/*############################################# DELETE BY USER AND EXPENSE ID TEST #############################################*/
+    /*############################################# DELETE BY USER AND EXPENSE ID TEST #############################################*/
     @Test
     void whenDeleteByUserIdAndExpenseId_withCorrectParams_positiveScenario() {
         long mockUserId = mockUser.getId();
@@ -502,9 +502,9 @@ class ExpenseServiceImplTest {
         Mockito.verify(expenseRepository, Mockito.times(1))
                 .findAll();
     }
-/*############################################################# END #############################################################*/
+    /*############################################################# END #############################################################*/
 
-/*######################################### UPDATE EXPENSE BY USER AND EXPENSE ID TEST #########################################*/
+    /*######################################### UPDATE EXPENSE BY USER AND EXPENSE ID TEST #########################################*/
 
     @Test
     void whenUpdateByUserIdAndExpenseId_withCorrectParams_positiveScenario() {
@@ -556,6 +556,33 @@ class ExpenseServiceImplTest {
                 .updateLimit(mockLimit);
     }
 
+    @Test
+    void whenUpdateByUserIdAndExpenseId_withWrongUserId_failureScenario() {
+        long mockUserId = -1;
+        long mockExpenseId = mockedExpenses.getFirst().getId();
+
+        Mockito.when(expenseRepository.findAll()).thenReturn(mockedExpenses);
+
+        assertThrows(ExpenseNotFoundException.class, () -> expenseService.updateByUserIdAndExpenseId(mockUserId, mockExpenseId, mockedExpenseRequest));
+
+        Mockito.verify(userService, Mockito.times(1)).findUserById(mockUserId);
+        Mockito.verify(expenseRepository, Mockito.times(1)).findAll();
+    }
+
+    @Test
+    void whenUpdateByUserIdAndExpenseId_withWrongExpenseId_failureScenario() {
+        long mockUserId = mockUser.getId();
+        long mockExpenseId = -1;
+
+        Mockito.when(expenseRepository.findAll()).thenReturn(mockedExpenses);
+
+        assertThrows(ExpenseNotFoundException.class, () -> expenseService.updateByUserIdAndExpenseId(mockUserId, mockExpenseId, mockedExpenseRequest));
+
+        Mockito.verify(userService, Mockito.times(1)).findUserById(mockUserId);
+        Mockito.verify(expenseRepository, Mockito.times(1)).findAll();
+    }
+
+    /*############################################################# END #############################################################*/
 
     private Expense buildExpenseEntity(ExpenseRequest request, User user) {
         return new Expense(
