@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface LimitRepository extends JpaRepository<Limit, Long> {
@@ -19,4 +20,6 @@ public interface LimitRepository extends JpaRepository<Limit, Long> {
     @Modifying
     @Query("DELETE FROM Limit l WHERE l.endDate < :currentDate")
     void deleteExpiredLimits(LocalDate currentDate);
+
+    Optional<Limit> findById(long limitId);
 }

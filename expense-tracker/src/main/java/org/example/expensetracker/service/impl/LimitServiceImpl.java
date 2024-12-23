@@ -5,6 +5,7 @@ import org.example.expensetracker.entity.Category;
 import org.example.expensetracker.entity.Expense;
 import org.example.expensetracker.entity.Limit;
 import org.example.expensetracker.entity.User;
+import org.example.expensetracker.model.exception.WrongLimitDetailsException;
 import org.example.expensetracker.model.request.limit.LimitRequest;
 import org.example.expensetracker.repository.LimitRepository;
 import org.example.expensetracker.service.ExpenseService;
@@ -71,7 +72,7 @@ public class LimitServiceImpl implements LimitService {
         });
     }
 
-    private BigDecimal calculateTotalExpenses(LocalDate startDate, LocalDate endDate, Category category, Long userId) {
+    private BigDecimal calculateTotalExpenses(LocalDate startDate, LocalDate endDate, Category category, long userId) {
         List<Expense> expenses = expenseService.analyzeExpenses(startDate, endDate, category, userId);
         BigDecimal total = BigDecimal.ZERO;
 
@@ -98,8 +99,13 @@ public class LimitServiceImpl implements LimitService {
 
     @Override
     @Transactional
-    public void updateLimit(Limit limit) {
-        limitRepository.save(limit);
+    public void updateLimit(Limit limit, long userId) {
+        Optional<Limit> origLimit = limitRepository.findById(limit.getId());
+        if (origLimit.isPresent() && origLimit.get().getUser().getId() == userId) {
+            limitRepository.save(limit);
+            return;
+        }
+        throw new WrongLimitDetailsException("Wrong user id or limit details!");
     }
 
     private Limit buildLimitDetails(LimitRequest limitRequest, User user) {

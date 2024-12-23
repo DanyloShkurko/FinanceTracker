@@ -202,7 +202,7 @@ class ExpenseServiceImplTest {
         limits.getFirst().setCurrentSpent(mockedExpenseRequest.getAmount());
 
         Mockito.verify(limitService, Mockito.times(1))
-                .updateLimit(limits.getFirst());
+                .updateLimit(limits.getFirst(), mockUser.getId());
 
         assertEquals(expected.getId(), actualResponse.getId());
         assertEquals(expected.getTitle(), actualResponse.getTitle());
@@ -465,7 +465,7 @@ class ExpenseServiceImplTest {
                 .findLimitsByUserId(mockUserId);
 
         Mockito.verify(limitService, Mockito.times(1))
-                .updateLimit(mockLimit);
+                .updateLimit(mockLimit, mockUser.getId());
 
         Mockito.verify(expenseRepository, Mockito.times(1))
                 .delete(mockedExpenses.getFirst());
@@ -553,7 +553,7 @@ class ExpenseServiceImplTest {
         assertEquals(expectedNewSpent, mockLimit.getCurrentSpent());
 
         Mockito.verify(limitService, Mockito.times(1))
-                .updateLimit(mockLimit);
+                .updateLimit(mockLimit, mockUser.getId());
     }
 
     @Test
