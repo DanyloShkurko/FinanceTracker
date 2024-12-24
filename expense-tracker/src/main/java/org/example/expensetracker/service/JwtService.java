@@ -44,13 +44,15 @@ public class JwtService {
 
     private Claims extractAllClaims(String token) {
         log.debug("Extracting all claims from token");
-        System.out.println(getSignInKey());
-        return Jwts
+        Claims claims = Jwts
                 .parserBuilder()
                 .setSigningKey(getSignInKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+
+        System.out.println(claims);
+        return claims;
     }
 
     private Key getSignInKey() {
