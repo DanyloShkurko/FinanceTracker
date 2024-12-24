@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -48,7 +47,7 @@ public class ExpenseController {
             summary = "Create a new expense",
             description = "This endpoint creates a new expense entry for the authenticated user.",
             security = @SecurityRequirement(name = "Bearer Authentication"),
-            requestBody = @RequestBody(
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Expense request payload",
                     required = true,
                     content = @Content(
@@ -138,7 +137,7 @@ public class ExpenseController {
             summary = "Update an expense",
             description = "Update the details of an existing expense.",
             security = @SecurityRequirement(name = "Bearer Authentication"),
-            requestBody = @RequestBody(
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Updated expense data",
                     required = true,
                     content = @Content(
@@ -167,7 +166,7 @@ public class ExpenseController {
             summary = "Set a spending limit",
             description = "Set a spending limit for a specific user.",
             security = @SecurityRequirement(name = "Bearer Authentication"),
-            requestBody = @RequestBody(
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Limit request data",
                     required = true,
                     content = @Content(
@@ -206,7 +205,7 @@ public class ExpenseController {
         return ResponseEntity.ok(limitService.findLimitsByUserId(user.getId()));
     }
 
-    private User parseToken(String token) {
+    protected User parseToken(String token) {
         if (token == null || !token.startsWith("Bearer ") || jwtService.isTokenExpired(token.replace("Bearer ", ""))) {
             throw new AccessDeniedException("Token is empty");
         }
