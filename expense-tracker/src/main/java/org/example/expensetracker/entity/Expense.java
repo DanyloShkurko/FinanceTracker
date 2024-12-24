@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Table(name = "expense_details")
@@ -62,5 +63,17 @@ public class Expense {
                 ", category=" + category +
                 ", user=" + user +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Expense expense = (Expense) o;
+        return id == expense.id && Objects.equals(title, expense.title) && Objects.equals(description, expense.description) && Objects.equals(amount, expense.amount) && Objects.equals(date, expense.date) && category == expense.category && Objects.equals(user, expense.user);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, description, amount, date, category, user);
     }
 }
