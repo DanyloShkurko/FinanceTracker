@@ -3,6 +3,8 @@ package org.example.expensetracker.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "user_details")
 @Getter
@@ -23,4 +25,22 @@ public class User {
 
     @Column(unique = true, nullable = false)
     private String email;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id == user.id
+                &&
+                Objects.equals(username, user.username)
+                &&
+                Objects.equals(password, user.password)
+                &&
+                Objects.equals(email, user.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, password, email);
+    }
 }
