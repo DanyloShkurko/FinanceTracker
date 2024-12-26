@@ -10,6 +10,7 @@ import org.example.expensetracker.model.exception.ExceptionValidationDetails;
 import org.example.expensetracker.model.exception.ExpenseNotFoundException;
 import org.example.expensetracker.model.exception.UserNotFoundException;
 import org.example.expensetracker.model.request.expense.ExpenseRequest;
+import org.example.expensetracker.model.request.limit.LimitRequest;
 import org.example.expensetracker.model.response.ExpenseResponse;
 import org.example.expensetracker.service.ExpenseService;
 import org.example.expensetracker.service.JwtService;
@@ -68,7 +69,8 @@ class ExpenseControllerTest {
     private Expense mockedExpense3;
     private ExpenseRequest mockedExpenseRequest;
     private ExpenseResponse mockedExpenseResponse;
-    private List<Limit> mockedLimit;
+    private List<Limit> mockedLimits;
+    private LimitRequest mockedLimitRequest;
 
     @BeforeEach
     void setUp() {
@@ -128,7 +130,7 @@ class ExpenseControllerTest {
                 mockedExpenseRequest.getDate()
         );
 
-        this.mockedLimit = Collections.singletonList(
+        this.mockedLimits = List.of(
                 new Limit(
                         1,
                         new BigDecimal(100),
@@ -138,7 +140,28 @@ class ExpenseControllerTest {
                         LocalDate.now().minusMonths(1),
                         LocalDate.now().plusDays(10),
                         this.mockedUser
-                ));
+                ),
+                new Limit(
+                        2,
+                        new BigDecimal(110),
+                        new BigDecimal(1),
+                        false,
+                        Category.FOOD_GROCERIES,
+                        LocalDate.now().minusMonths(1),
+                        LocalDate.now().plusDays(10),
+                        this.mockedUser
+                )
+        );
+
+        this.mockedLimitRequest = new LimitRequest(
+                new BigDecimal(100),
+                new BigDecimal(0),
+                false,
+                Category.EDUCATION,
+                LocalDate.now().minusMonths(1),
+                LocalDate.now().plusDays(1),
+                mockedUser.getId()
+        );
     }
     /*##################################################### CREATE EXPENSE TEST #####################################################*/
 
@@ -154,7 +177,7 @@ class ExpenseControllerTest {
                 .thenReturn(mockedUser);
 
         Mockito.when(limitService.findLimitsByUserId(mockedUser.getId()))
-                .thenReturn(mockedLimit);
+                .thenReturn(mockedLimits);
 
         Mockito.when(expenseService.save(any(ExpenseRequest.class)))
                 .thenReturn(mockedExpenseResponse);
@@ -247,7 +270,7 @@ class ExpenseControllerTest {
                 .thenReturn(mockedUser.getEmail());
 
         Mockito.when(userService.findUserByEmail(mockedUser.getEmail()))
-                        .thenThrow(UserNotFoundException.class);
+                .thenThrow(UserNotFoundException.class);
 
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/api/v1/expenses/listUser")
@@ -284,7 +307,7 @@ class ExpenseControllerTest {
     }
 
     @Test
-    void whenAnalyzeExpenses_withoutAccessToken_positiveScenario() throws Exception {
+    void whenAnalyzeExpenses_withoutAccessToken_failureScenario() throws Exception {
         LocalDate mockedFrom = LocalDate.now().minusDays(4);
         LocalDate mockedTo = LocalDate.now().plusDays(1);
         Category mockedCategory = Category.EDUCATION;
@@ -328,7 +351,7 @@ class ExpenseControllerTest {
                 .thenReturn(mockedUser);
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .delete("/api/v1/expenses/delete?expenseId="+mockedExpense1.getId())
+                        .delete("/api/v1/expenses/delete?expenseId=" + mockedExpense1.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + jwt))
                 .andExpect(MockMvcResultMatchers.status().isOk());
@@ -362,7 +385,7 @@ class ExpenseControllerTest {
                 .thenThrow(UserNotFoundException.class);
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .delete("/api/v1/expenses/delete?expenseId="+mockedExpense1.getId())
+                        .delete("/api/v1/expenses/delete?expenseId=" + mockedExpense1.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + jwt))
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
@@ -388,7 +411,7 @@ class ExpenseControllerTest {
 
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .put("/api/v1/expenses/update?expenseId="+mockedExpenseResponse.getId())
+                        .put("/api/v1/expenses/update?expenseId=" + mockedExpenseResponse.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(mockedExpenseRequest))
                         .header("Authorization", "Bearer " + jwt))
@@ -397,10 +420,178 @@ class ExpenseControllerTest {
     }
 
     @Test
-    void createLimit() {
+    void whenUpdateExpense_withWrongExpenseId_failureScenario() throws Exception {
+        Mockito.when(jwtService.extractUsername(jwt))
+                .thenReturn(mockedUser.getEmail());
+
+        Mockito.when(userService.findUserByEmail(mockedUser.getEmail()))
+                .thenReturn(mockedUser);
+
+        Mockito.when(expenseService.updateByUserIdAndExpenseId(
+                        mockedUser.getId(),
+                        mockedExpenseResponse.getId(),
+                        mockedExpenseRequest))
+                .thenThrow(ExpenseNotFoundException.class);
+
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/api/v1/expenses/update?expenseId=" + mockedExpenseResponse.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(mockedExpenseRequest))
+                        .header("Authorization", "Bearer " + jwt))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
     @Test
-    void findAllLimits() {
+    void whenUpdateExpense_withWrongAccessToken_failureScenario() throws Exception {
+        Mockito.when(jwtService.extractUsername(jwt))
+                .thenReturn(mockedUser.getEmail());
+
+        Mockito.when(userService.findUserByEmail(mockedUser.getEmail()))
+                .thenThrow(UserNotFoundException.class);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/api/v1/expenses/update?expenseId=" + mockedExpenseResponse.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(mockedExpenseRequest))
+                        .header("Authorization", "Bearer " + jwt))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
+
+    @Test
+    void whenUpdateExpense_withoutAccessToken_failureScenario() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/api/v1/expenses/update?expenseId=" + mockedExpenseResponse.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(mockedExpenseRequest)))
+                .andExpect(MockMvcResultMatchers.status().isForbidden())
+                .andExpect(MockMvcResultMatchers.content().json("{\"message\": \"Token is empty\"}"));
+    }
+
+    /*############################################################# END #############################################################*/
+
+    /*###################################################### CREATE LIMIT TEST ######################################################*/
+
+    @Test
+    void whenCreateLimit_withCorrectData_positiveScenario() throws Exception {
+        Mockito.when(jwtService.extractUsername(jwt))
+                .thenReturn(mockedUser.getEmail());
+
+        Mockito.when(userService.findUserByEmail(mockedUser.getEmail()))
+                .thenReturn(mockedUser);
+
+        Mockito.doNothing().when(limitService)
+                .createLimit(mockedLimitRequest);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/api/v1/expenses/limit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(mockedLimitRequest))
+                        .header("Authorization", "Bearer " + jwt))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    void whenCreateLimit_withInvalidRequest_failureScenario() throws Exception {
+        Mockito.when(jwtService.extractUsername(jwt))
+                .thenReturn(mockedUser.getEmail());
+
+        Mockito.when(userService.findUserByEmail(mockedUser.getEmail()))
+                .thenReturn(mockedUser);
+
+        Mockito.doNothing().when(limitService)
+                .createLimit(mockedLimitRequest);
+
+        ExceptionValidationDetails expected = new ExceptionValidationDetails(
+                LocalDateTime.now().withNano(0),
+                "Validation failed for one or more fields",
+                "uri=/api/v1/expenses/limit",
+                Map.of("currentSpent", "Current spent amount cannot be negative.")
+        );
+
+        mockedLimitRequest.setCurrentSpent(new BigDecimal(-12));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/api/v1/expenses/limit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(mockedLimitRequest))
+                        .header("Authorization", "Bearer " + jwt))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(expected)));
+    }
+
+    @Test
+    void whenCreateLimit_withWrongUserEmail_failureScenario() throws Exception {
+        Mockito.when(jwtService.extractUsername(jwt))
+                .thenReturn(mockedUser.getEmail());
+
+        Mockito.when(userService.findUserByEmail(mockedUser.getEmail()))
+                .thenThrow(UserNotFoundException.class);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/api/v1/expenses/limit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(mockedLimitRequest))
+                        .header("Authorization", "Bearer " + jwt))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    void whenCreateLimit_withWrongAccessToken_failureScenario() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/api/v1/expenses/limit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(mockedLimitRequest)))
+                .andExpect(MockMvcResultMatchers.status().isForbidden())
+                .andExpect(MockMvcResultMatchers.content().json("{\"message\": \"Token is empty\"}"));
+    }
+
+    /*############################################################# END #############################################################*/
+
+    /*#################################################### FIND ALL LIMITS TEST ####################################################*/
+
+    @Test
+    void whenFindAllLimits_withCorrectAccessToken_positiveScenario() throws Exception {
+        Mockito.when(jwtService.extractUsername(jwt))
+                .thenReturn(mockedUser.getEmail());
+
+        Mockito.when(userService.findUserByEmail(mockedUser.getEmail()))
+                .thenReturn(mockedUser);
+
+        Mockito.when(limitService.findLimitsByUserId(mockedUser.getId()))
+                .thenReturn(mockedLimits);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/api/v1/expenses/limits")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + jwt))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(mockedLimits)));
+    }
+
+    @Test
+    void whenFindAllLimits_withWrongUserEmail_failureScenario() throws Exception {
+        Mockito.when(jwtService.extractUsername(jwt))
+                .thenReturn(mockedUser.getEmail());
+
+        Mockito.when(userService.findUserByEmail(mockedUser.getEmail()))
+                .thenThrow(UserNotFoundException.class);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/api/v1/expenses/limits")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + jwt))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    void whenFindAllLimits_withoutAccessToken_failureScenario() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/api/v1/expenses/limits")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isForbidden())
+                .andExpect(MockMvcResultMatchers.content().json("{\"message\": \"Token is empty\"}"));
+    }
+
+    /*############################################################# END #############################################################*/
 }
