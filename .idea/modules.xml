@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/FinanceTracker.iml" filepath="$PROJECT_DIR$/.idea/FinanceTracker.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-service.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/expense-tracker.main.iml" filepath="$PROJECT_DIR$/.idea/modules/expense-tracker.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/expense-tracker.test.iml" filepath="$PROJECT_DIR$/.idea/modules/expense-tracker.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/finance-tracker-web-client.iml" filepath="$PROJECT_DIR$/finance-tracker-web-client.iml" />

@@ -1,12 +1,12 @@
 package com.example.user_service.service.impl;
 
 import com.example.user_service.entity.User;
+import com.example.user_service.model.exception.UniqueConstraintException;
 import com.example.user_service.model.exception.UserNotFoundException;
 import com.example.user_service.model.request.UserUpdateRequest;
 import com.example.user_service.model.response.UserResponse;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.service.UserService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +15,17 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public UserServiceImpl(UserRepository userRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public User getUserByEmail(String email) {
@@ -47,6 +53,14 @@ public class UserServiceImpl implements UserService {
         log.info("Received request to update user details for email: {}", email);
 
         User user = getUserByEmail(email);
+
+        if (updateRequest.getEmail() != null && !updateRequest.getEmail().equals(user.getEmail())) {
+            userRepository.findByEmail(updateRequest.getEmail())
+                    .ifPresent(existingUser -> {
+                        throw new UniqueConstraintException("Email is already in use: " + updateRequest.getEmail());
+                    });
+        }
+
         updateUserFields(user, updateRequest);
         userRepository.save(user);
 
@@ -56,7 +70,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public void removeUser(String email) {
         log.info("Received request to remove user with email: {}", email);
-
+        if (email == null) {
+            log.error("Email must not be null");
+            throw new UserNotFoundException("Email must not be null");
+        }
         userRepository.delete(getUserByEmail(email));
         log.info("User removed successfully with email: {}", email);
     }
