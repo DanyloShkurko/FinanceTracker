@@ -58,7 +58,7 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    private boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         log.debug("Checking if token is expired");
         boolean expired = extractExpiration(token).before(new Date());
         log.info("Token expiration status: {}", expired ? "Expired" : "Valid");
