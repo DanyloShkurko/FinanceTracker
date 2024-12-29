@@ -210,15 +210,54 @@ class UserControllerTest {
                 .updateUser(Mockito.eq(mockedUser.getEmail()), Mockito.eq(mockedUserUpdateRequest));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .put("/api/v1/user/update")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", JWT)
-                        .content(objectMapper.writeValueAsString(mockedUserUpdateRequest)));
+                .put("/api/v1/user/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", JWT)
+                .content(objectMapper.writeValueAsString(mockedUserUpdateRequest)));
     }
 
     /*############################################################# END #############################################################*/
 
+    /*###################################################### REMOVE USER TEST ######################################################*/
+
     @Test
-    void removeUser() {
+    void whenRemoveUser_correctAccessToken_positiveScenario() throws Exception {
+        Mockito.when(jwtService.extractUsername(JWT)).thenReturn(mockedUser.getEmail());
+        Mockito.doNothing().when(userService).removeUser(mockedUser.getEmail());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/api/v1/user/remove")
+                        .header("Authorization", JWT))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
+
+    @Test
+    void whenRemoveUser_withWrongUserEmail_failureScenario() throws Exception {
+        Mockito.when(jwtService.extractUsername(JWT)).thenReturn(mockedUser.getEmail());
+        Mockito.doThrow(UserNotFoundException.class).when(userService).removeUser(mockedUser.getEmail());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/api/v1/user/remove")
+                        .header("Authorization", JWT))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    void whenRemoveUser_withWrongAccessToken_failureScenario() throws Exception {
+        Mockito.when(jwtService.extractUsername(JWT)).thenThrow(TokenNotValidException.class);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/api/v1/user/remove")
+                        .header("Authorization", JWT))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    @Test
+    void whenRemoveUser_withoutAccessToken_failureScenario() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/api/v1/user/remove"))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    /*############################################################# END #############################################################*/
 }
