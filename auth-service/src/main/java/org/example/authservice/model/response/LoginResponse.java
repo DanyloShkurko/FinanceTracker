@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -18,4 +20,16 @@ public class LoginResponse {
 
     @Schema(description = "The expiration time of the token in seconds", example = "3600")
     private long expiresIn;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        LoginResponse that = (LoginResponse) o;
+        return expiresIn == that.expiresIn && Objects.equals(token, that.token);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(token, expiresIn);
+    }
 }
