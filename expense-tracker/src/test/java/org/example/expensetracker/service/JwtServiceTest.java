@@ -38,7 +38,7 @@ class JwtServiceTest {
 
         token = Jwts.builder()
                 .setSubject(testUsername)
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // Valid for 1 hour
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
                 .signWith(key)
                 .compact();
     }
