@@ -1,6 +1,7 @@
 package org.example.cloudgateway.service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -30,8 +31,12 @@ public class JwtUtil {
                 .getBody();
     }
 
-    private boolean isTokenExpired(String token) {
-        return this.extractAllClaims(token).getExpiration().before(new Date());
+    public boolean isTokenExpired(String token) {
+        try {
+            return this.extractAllClaims(token).getExpiration().before(new Date());
+        } catch (ExpiredJwtException e){
+            return true;
+        }
     }
 
     public boolean isInvalid(String token) {
@@ -42,7 +47,7 @@ public class JwtUtil {
         }
     }
 
-    private boolean isAuthMissing(String token) {
+    public boolean isAuthMissing(String token) {
         return token == null || !token.startsWith("Bearer ");
     }
 }
