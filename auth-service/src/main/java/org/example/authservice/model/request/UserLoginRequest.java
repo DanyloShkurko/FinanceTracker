@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -25,4 +27,16 @@ public class UserLoginRequest {
     @Size(min = 8, message = "Password must be at least 8 characters long")
     @Schema(description = "The user's password (minimum of 8 characters)", example = "P@ssw0rd123", requiredMode = Schema.RequiredMode.REQUIRED)
     private String password;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        UserLoginRequest that = (UserLoginRequest) o;
+        return Objects.equals(email, that.email) && Objects.equals(password, that.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(email, password);
+    }
 }

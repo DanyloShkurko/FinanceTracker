@@ -10,6 +10,7 @@ import org.example.expensetracker.entity.Category;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -65,4 +66,16 @@ public class ExpenseRequest {
             example = "12345"
     )
     private long userId;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ExpenseRequest that = (ExpenseRequest) o;
+        return userId == that.userId && Objects.equals(title, that.title) && Objects.equals(description, that.description) && Objects.equals(amount, that.amount) && Objects.equals(date, that.date) && category == that.category;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, description, amount, date, category, userId);
+    }
 }

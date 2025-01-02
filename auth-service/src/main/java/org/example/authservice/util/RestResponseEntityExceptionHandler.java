@@ -53,7 +53,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     private ExceptionDetails buildExceptionDetails(Exception ex, WebRequest request) {
         log.debug("Building exception details for exception: {}", ex.getClass().getSimpleName());
         return new ExceptionDetails(
-                LocalDateTime.now(),
+                LocalDateTime.now().withNano(0),
                 ex.getMessage(),
                 request.getDescription(false)
         );
@@ -69,7 +69,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         }
 
         return new ExceptionValidationDetails(
-                LocalDateTime.now(),
+                LocalDateTime.now().withNano(0),
                 "Validation failed for one or more fields",
                 request.getDescription(false),
                 validationErrors

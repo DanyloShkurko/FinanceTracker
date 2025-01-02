@@ -37,7 +37,9 @@ dependencies {
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("org.postgresql:postgresql")
     annotationProcessor("org.projectlombok:lombok")
+    testImplementation("com.github.tomakehurst:wiremock-jre8:3.0.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    runtimeOnly("com.h2database:h2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 dependencyManagement {

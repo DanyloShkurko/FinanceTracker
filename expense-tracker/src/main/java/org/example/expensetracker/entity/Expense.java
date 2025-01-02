@@ -2,20 +2,21 @@ package org.example.expensetracker.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Table(name = "expense_details")
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
+@AllArgsConstructor
 public class Expense {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,5 +50,30 @@ public class Expense {
         this.date = date;
         this.category = category;
         this.user = user;
+    }
+
+    @Override
+    public String toString() {
+        return "Expense{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", amount=" + amount +
+                ", date=" + date +
+                ", category=" + category +
+                ", user=" + user +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Expense expense = (Expense) o;
+        return id == expense.id && Objects.equals(title, expense.title) && Objects.equals(description, expense.description) && Objects.equals(amount, expense.amount) && Objects.equals(date, expense.date) && category == expense.category && Objects.equals(user, expense.user);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, description, amount, date, category, user);
     }
 }

@@ -15,6 +15,7 @@ import java.util.function.Function;
 @Slf4j
 @Component
 public class JwtService {
+
     @Value("${jwt.secret}")
     private String secretKey;
 
@@ -43,12 +44,15 @@ public class JwtService {
 
     private Claims extractAllClaims(String token) {
         log.debug("Extracting all claims from token");
-        return Jwts
+        Claims claims = Jwts
                 .parserBuilder()
                 .setSigningKey(getSignInKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+
+        System.out.println(claims);
+        return claims;
     }
 
     private Key getSignInKey() {

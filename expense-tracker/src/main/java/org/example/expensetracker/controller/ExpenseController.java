@@ -62,7 +62,9 @@ public class ExpenseController {
             @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content),
             @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
     })
-    public ResponseEntity<ExpenseResponse> createExpense(@RequestHeader("Authorization") String token,
+
+    @PostMapping("/add")
+    public ResponseEntity<ExpenseResponse> createExpense(@RequestHeader(value = "Authorization", required = false) String token,
                                                          @RequestBody @Valid ExpenseRequest request) {
 
         System.out.println("\n\n\n\n\n\n");
@@ -77,23 +79,6 @@ public class ExpenseController {
     }
 
     @Operation(
-            summary = "Retrieve all expenses",
-            description = "This endpoint retrieves all expenses from the database."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "List of all expenses retrieved successfully",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Expense.class)))),
-            @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
-    })
-    @GetMapping("/list")
-    public ResponseEntity<List<Expense>> findAllExpenses() {
-        log.info("Received request to find all expenses records.");
-        List<Expense> expenses = expenseService.findAll();
-        log.info("Expense records found: {}", expenses);
-        return ResponseEntity.ok(expenses);
-    }
-
-    @Operation(
             summary = "Retrieve expenses for a specific user",
             description = "This endpoint retrieves expenses for the authenticated user.",
             security = @SecurityRequirement(name = "Bearer Authentication")
@@ -104,10 +89,10 @@ public class ExpenseController {
             @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
     })
     @GetMapping("/listUser")
-    public ResponseEntity<List<Expense>> findExpenseByUserId(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<List<Expense>> findExpensesByUserId(@RequestHeader(value = "Authorization", required = false) String token) {
         User user = parseToken(token);
         log.info("Received request to find expenses for user ID: {}", user.getId());
-        List<Expense> expenses = expenseService.findByUserId(parseToken(token).getId());
+        List<Expense> expenses = expenseService.findExpensesByUserId(parseToken(token).getId());
         log.info("Expense records found: {} \n by user id: {}", expenses, user.getId());
         return ResponseEntity.ok(expenses);
     }
@@ -123,7 +108,7 @@ public class ExpenseController {
             @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
     })
     @GetMapping("/analyze")
-    public ResponseEntity<List<Expense>> analyzeExpenses(@RequestHeader("Authorization") String token,
+    public ResponseEntity<List<Expense>> analyzeExpenses(@RequestHeader(value = "Authorization", required = false) String token,
                                                          @RequestParam(value = "from", required = false) LocalDate from,
                                                          @RequestParam(value = "to", required = false) LocalDate to,
                                                          @RequestParam(value = "category", required = false) Category category) {
@@ -145,7 +130,7 @@ public class ExpenseController {
             @ApiResponse(responseCode = "404", description = "Expense not found", content = @Content)
     })
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteExpense(@RequestHeader("Authorization") String token,
+    public ResponseEntity<Void> deleteExpense(@RequestHeader(value = "Authorization", required = false) String token,
                                               @RequestParam("expenseId") long expenseId) {
         User user = parseToken(token);
         log.info("Received request to delete expense for user ID: {} with expense ID: {}", user.getId(), expenseId);
@@ -173,7 +158,7 @@ public class ExpenseController {
             @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
     })
     @PutMapping("/update")
-    public ResponseEntity<ExpenseResponse> updateExpense(@RequestHeader("Authorization") String token,
+    public ResponseEntity<ExpenseResponse> updateExpense(@RequestHeader(value = "Authorization", required = false) String token,
                                                          @RequestParam("expenseId") long expenseId,
                                                          @RequestBody @Valid ExpenseRequest request) {
         User user = parseToken(token);
@@ -200,7 +185,7 @@ public class ExpenseController {
             @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
     })
     @PostMapping("/limit")
-    public ResponseEntity<Void> createLimit(@RequestHeader("Authorization") String token,
+    public ResponseEntity<Void> createLimit(@RequestHeader(value = "Authorization", required = false) String token,
                                             @RequestBody @Valid LimitRequest request) {
         User user = parseToken(token);
         request.setUserId(user.getId());
@@ -221,12 +206,12 @@ public class ExpenseController {
             @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
     })
     @GetMapping("/limits")
-    public ResponseEntity<List<Limit>> findAllLimits(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<List<Limit>> findAllLimits(@RequestHeader(value = "Authorization", required = false) String token) {
         User user = parseToken(token);
         return ResponseEntity.ok(limitService.findLimitsByUserId(user.getId()));
     }
 
-    private User parseToken(String token) {
+    protected User parseToken(String token) {
         if (token == null || !token.startsWith("Bearer ") || jwtService.isTokenExpired(token.replace("Bearer ", ""))) {
             throw new AccessDeniedException("Token is empty");
         }

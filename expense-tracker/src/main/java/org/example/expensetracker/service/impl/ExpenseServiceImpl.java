@@ -44,10 +44,11 @@ public class ExpenseServiceImpl implements ExpenseService {
         checkLimitExceeded(userLimits, expenseRequest);
 
         Expense expense = buildExpenseEntity(expenseRequest, user);
-        expenseRepository.save(expense);
+        expense = expenseRepository.save(expense);
 
         log.info("Expense record saved successfully for user ID: {}, Category: {}, Amount: {}",
                 user.getId(), expenseRequest.getCategory(), expenseRequest.getAmount());
+
 
         return new ExpenseResponse(expense.getId(),
                 expense.getTitle(),
@@ -82,7 +83,7 @@ public class ExpenseServiceImpl implements ExpenseService {
             }
             limit.setCurrentSpent(newTotal);
 
-            limitService.updateLimit(limit);
+            limitService.updateLimit(limit, expenseRequest.getUserId());
 
             log.debug("Updated limit for Category: {}, New CurrentSpent: {}", limit.getCategory(), limit.getCurrentSpent());
         } else {
@@ -92,13 +93,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
 
     @Override
-    public List<Expense> findAll() {
-        log.info("Fetching all expense records...");
-        return expenseRepository.findAll();
-    }
-
-    @Override
-    public List<Expense> findByUserId(long userId) {
+    public List<Expense> findExpensesByUserId(long userId) {
         log.info("Fetching expense records for user ID: {}", userId);
 
         userService.findUserById(userId);
@@ -115,9 +110,14 @@ public class ExpenseServiceImpl implements ExpenseService {
     public List<Expense> analyzeExpenses(LocalDate from, LocalDate to, Category category, long userId) {
         log.info("Starting analysis of expenses for user ID: {} with date range from: {} to: {} and category: {}", userId, from, to, category);
 
-        List<Expense> expenses = findByUserId(userId).stream()
-                .filter(expense -> (from == null || (expense.getDate().isAfter(from)) || expense.getDate().isEqual(from)) &&
-                        (to == null || (expense.getDate().isBefore(to) || expense.getDate().isEqual(to))) &&
+        userService.findUserById(userId);
+
+        List<Expense> expenses = findExpensesByUserId(userId).stream()
+                .filter(expense ->
+                        (from == null || (expense.getDate().isAfter(from)) || expense.getDate().isEqual(from))
+                                &&
+                        (to == null || (expense.getDate().isBefore(to) || expense.getDate().isEqual(to)))
+                                &&
                         (category == null || expense.getCategory().equals(category)))
                 .toList();
 
@@ -140,7 +140,7 @@ public class ExpenseServiceImpl implements ExpenseService {
             BigDecimal amount = expense.getAmount() != null ? expense.getAmount() : BigDecimal.ZERO;
             BigDecimal newTotal = currentSpent.subtract(amount);
             limit.setCurrentSpent(newTotal);
-            limitService.updateLimit(limit);
+            limitService.updateLimit(limit, userId);
         }
 
         expenseRepository.delete(expense);
@@ -169,8 +169,9 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         optionalLimit.ifPresent(limit -> {
             BigDecimal newTotal = calculateNewTotalSpent(limit, expenseRequest, expense);
+            System.out.println(newTotal);
             limit.setCurrentSpent(newTotal);
-            limitService.updateLimit(limit);
+            limitService.updateLimit(limit, userId);
         });
     }
 
@@ -208,7 +209,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
 
     private Expense findExpenseByUserIdAndExpenseId(long userId, long expenseId) {
-        return findByUserId(userId).stream()
+        return findExpensesByUserId(userId).stream()
                 .filter(expense -> expense.getId() == expenseId)
                 .findFirst()
                 .orElseThrow(() -> {
