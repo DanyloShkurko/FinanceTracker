@@ -7,7 +7,9 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -24,9 +26,11 @@ public class JwtService {
 
     private final UserService userService;
 
-    public JwtService(UserService userService) {
+    @Autowired
+    public JwtService(@Lazy UserService userService) {
         this.userService = userService;
     }
+
 
     public String extractUsername(String token) {
         if (token == null || !token.startsWith("Bearer ") || isTokenExpired(token.replace("Bearer ", ""))) {
