@@ -38,6 +38,7 @@ dependencies {
 	implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
+	implementation("org.springframework.cloud:spring-cloud-starter-config")
 	testImplementation("org.springframework.security:spring-security-test")
 
 	runtimeOnly("org.postgresql:postgresql")
