@@ -43,7 +43,6 @@ public class ExpenseController {
         this.userService = userService;
     }
 
-    @PostMapping("/add")
     @Operation(
             summary = "Create a new expense",
             description = "This endpoint creates a new expense entry for the authenticated user.",
