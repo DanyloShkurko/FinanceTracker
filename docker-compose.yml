@@ -44,6 +44,20 @@ services:
       - SERVER_PORT=8761
     restart: unless-stopped
 
+  config-server:
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
+    image: config-server
+    depends_on:
+      - eureka-server
+    environment:
+      - EUREKA_HOST=eureka-server
+      - EUREKA_PORT=8761
+    ports:
+      - "9296:9296"
+    restart: unless-stopped
+
   cloud-gateway:
     build:
       context: ./cloud-gateway
@@ -73,6 +87,7 @@ services:
     depends_on:
       - postgres-db
       - eureka-server
+      - config-server
     environment:
       - SERVER_PORT=8082
       - POSTGRES_USERNAME=postgres
@@ -82,6 +97,7 @@ services:
       - EUREKA_HOST=eureka-server
       - EUREKA_PORT=8761
       - JWT_SECRET=24b2eb99d299917874343b569d70c9805cc12135ca962235ee5d34552d84073e
+      - CONFIG_SERVER_URI=http://config-server:9296
     restart: unless-stopped
 
   expense-tracker:
@@ -94,6 +110,7 @@ services:
     depends_on:
       - postgres-db
       - eureka-server
+      - config-server
     environment:
       - SERVER_PORT=8080
       - POSTGRES_USERNAME=postgres
@@ -103,6 +120,7 @@ services:
       - EUREKA_HOST=eureka-server
       - EUREKA_PORT=8761
       - JWT_SECRET=24b2eb99d299917874343b569d70c9805cc12135ca962235ee5d34552d84073e
+      - CONFIG_SERVER_URI=http://config-server:9296
     restart: unless-stopped
 
   user-service:
@@ -114,6 +132,7 @@ services:
       - "8081:8081"
     depends_on:
       - postgres-db
+      - config-server
       - eureka-server
     environment:
       - SERVER_PORT=8081
@@ -124,6 +143,7 @@ services:
       - EUREKA_HOST=eureka-server
       - EUREKA_PORT=8761
       - JWT_SECRET=24b2eb99d299917874343b569d70c9805cc12135ca962235ee5d34552d84073e
+      - CONFIG_SERVER_URI=http://config-server:9296
     restart: unless-stopped
 
   finance-tracker-web-client:
