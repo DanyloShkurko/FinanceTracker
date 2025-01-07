@@ -66,9 +66,6 @@ public class ExpenseController {
     public ResponseEntity<ExpenseResponse> createExpense(@RequestHeader(value = "Authorization", required = false) String token,
                                                          @RequestBody @Valid ExpenseRequest request) {
 
-        System.out.println("\n\n\n\n\n\n");
-        System.out.println(request);
-        System.out.println("\n\n\n\n\n\n");
         User user = parseToken(token);
         request.setUserId(user.getId());
         log.info("Received request to create expense for user ID: {}", request.getUserId());
@@ -193,7 +190,6 @@ public class ExpenseController {
         log.info("Limit record created successfully for user ID: {}", request.getUserId());
         return ResponseEntity.ok().build();
     }
-
     @Operation(
             summary = "Retrieve all spending limits",
             description = "Retrieve all spending limits for the authenticated user.",
