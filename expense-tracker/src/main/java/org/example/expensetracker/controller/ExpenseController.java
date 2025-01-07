@@ -61,6 +61,7 @@ public class ExpenseController {
             @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content),
             @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
     })
+
     @PostMapping("/add")
     public ResponseEntity<ExpenseResponse> createExpense(@RequestHeader(value = "Authorization", required = false) String token,
                                                          @RequestBody @Valid ExpenseRequest request) {
@@ -84,7 +85,7 @@ public class ExpenseController {
             @ApiResponse(responseCode = "401", description = "Unauthorized access", content = @Content)
     })
     @GetMapping("/listUser")
-    public ResponseEntity<List<Expense>> findExpenseByUserId(@RequestHeader(value = "Authorization", required = false) String token) {
+    public ResponseEntity<List<Expense>> findExpensesByUserId(@RequestHeader(value = "Authorization", required = false) String token) {
         User user = parseToken(token);
         log.info("Received request to find expenses for user ID: {}", user.getId());
         List<Expense> expenses = expenseService.findExpensesByUserId(parseToken(token).getId());
@@ -189,7 +190,6 @@ public class ExpenseController {
         log.info("Limit record created successfully for user ID: {}", request.getUserId());
         return ResponseEntity.ok().build();
     }
-//
     @Operation(
             summary = "Retrieve all spending limits",
             description = "Retrieve all spending limits for the authenticated user.",
@@ -206,7 +206,7 @@ public class ExpenseController {
         return ResponseEntity.ok(limitService.findLimitsByUserId(user.getId()));
     }
 
-    private User parseToken(String token) {
+    protected User parseToken(String token) {
         if (token == null || !token.startsWith("Bearer ") || jwtService.isTokenExpired(token.replace("Bearer ", ""))) {
             throw new AccessDeniedException("Token is empty");
         }

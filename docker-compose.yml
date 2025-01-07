@@ -265,5 +265,6 @@ networks:
 
 volumes:
   elasticsearch:
+volumes:
   redis-data:
   postgres-data:
