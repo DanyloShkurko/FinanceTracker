@@ -264,7 +264,6 @@ networks:
     driver: bridge
 
 volumes:
-  elasticsearch:
-volumes:
   redis-data:
   postgres-data:
+  elasticsearch:

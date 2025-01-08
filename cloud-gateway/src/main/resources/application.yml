@@ -47,4 +47,5 @@ jwt:
 
 logging:
   file:
-    path: logs
+    name: /logs/cloud-gateway.log
+    path: /logs
