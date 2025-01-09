@@ -6,8 +6,6 @@ eureka:
   client:
     serviceUrl:
       defaultZone: ${EUREKA_URI:http://localhost:8761}/eureka
-  instance:
-    ip-address: ${EUREKA_HOST:localhost}
 
 spring:
   application:
@@ -20,7 +18,7 @@ spring:
         corsConfigurations:
           '[/**]':
             allowedOrigins:
-              - "http://localhost:5173"
+              - "${FRONTEND_URI:http://localhost:5173}"
             allowedMethods:
               - GET
               - POST
