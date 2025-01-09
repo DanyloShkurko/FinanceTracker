@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "3.4.0"
     id("io.spring.dependency-management") version "1.1.6"
+    id("com.google.cloud.tools.jib") version "3.4.4"
 }
 val springCloudVersion by extra("2024.0.0")
 
@@ -46,6 +47,21 @@ dependencies {
 dependencyManagement {
     imports {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
+    }
+}
+
+jib{
+
+    from {
+        image = "openjdk:21-jdk-slim"
+    }
+    to {
+        image = "registry.hub.docker.com/"+System.getenv("DOCKER_USERNAME")+"/expense-tracker-ft"
+        auth {
+            username = System.getenv("DOCKER_USERNAME") ?: "<default-username>"
+            password = System.getenv("DOCKER_PASSWORD") ?: "<default-password>"
+        }
+
     }
 }
 

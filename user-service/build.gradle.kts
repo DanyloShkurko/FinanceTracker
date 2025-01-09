@@ -2,6 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.3.5"
 	id("io.spring.dependency-management") version "1.1.6"
+	id("com.google.cloud.tools.jib") version "3.4.4"
 }
 val springCloudVersion by extra("2023.0.4")
 
@@ -40,7 +41,6 @@ dependencies {
 	implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
 	implementation("org.springframework.cloud:spring-cloud-starter-config")
 	testImplementation("org.springframework.security:spring-security-test")
-
 	runtimeOnly("org.postgresql:postgresql")
 
 	compileOnly("org.projectlombok:lombok")
@@ -52,11 +52,28 @@ dependencies {
 	runtimeOnly("com.h2database:h2")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
+
 dependencyManagement {
 	imports {
 		mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
 	}
 }
+
+jib{
+
+	from {
+		image = "openjdk:21-jdk-slim"
+	}
+	to {
+		image = "registry.hub.docker.com/"+System.getenv("DOCKER_USERNAME")+"/user-service-ft"
+		auth {
+			username = System.getenv("DOCKER_USERNAME") ?: "<default-username>"
+			password = System.getenv("DOCKER_PASSWORD") ?: "<default-password>"
+		}
+
+	}
+}
+
 
 tasks.withType<Test> {
 	useJUnitPlatform()
