@@ -1,20 +1,44 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: netchecker
+  name: eureka-server-ft
 spec:
   selector:
     matchLabels:
-      app: netchecker
+      app: eureka-server-ft
   template:
     metadata:
       labels:
-        app: netchecker
+        app: eureka-server-ft
     spec:
       containers:
-        - name: busybox
-          image: busybox
-          args:
-            - /bin/sh
-            - -c
-            - 'while true; do ping -c 4 8.8.8.8; sleep 60; done'
+        - name: eureka-server-ft
+          image: danil2110/eureka-server-ft
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka-server-ft
+spec:
+  clusterIP: None
+  selector:
+    app: eureka-server-ft
+  ports:
+    - port: 8761
+      name: eureka-server-ft
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka-server-ft-lb
+spec:
+  type: NodePort
+  selector:
+    app: eureka-server-ft
+  ports:
+    - port: 80
+      targetPort: 8761
