@@ -102,8 +102,7 @@ services:
       - HOST_NAME=localhost
       - REACT_PORT=5173
       - REDIS_PORT=6379
-      - EUREKA_HOST=eureka-server
-      - EUREKA_PORT=8761
+      - EUREKA_ADDRESS=http://localhost:8761/eureka
     volumes:
       - ./logs:/logs
     restart: unless-stopped

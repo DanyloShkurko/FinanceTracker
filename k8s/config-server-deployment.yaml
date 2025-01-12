@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-server-ft
+  labels:
+    app: config-server-ft
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: config-server-ft
+  template:
+    metadata:
+      name: config-server-ft
+      labels:
+        app: config-server-ft
+    spec:
+      containers:
+        - name: config-server-ft
+          image: danil2110/config-server-ft
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9296
+          env:
+            - name: EUREKA_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: EUREKA_ADDRESS
+                  name: eureka-cm
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-server-svc-ft
+spec:
+  selector:
+    app: config-server-ft
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9296
+  type: NodePort
+  
