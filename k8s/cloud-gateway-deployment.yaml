@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloud-gateway-ft
+  labels:
+    app: cloud-gateway-ft
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloud-gateway-ft
+  template:
+    metadata:
+      name: cloud-gateway-ft
+      labels:
+        app: cloud-gateway-ft
+    spec:
+      containers:
+        - name: cloud-gateway-ft
+          image: danil2110/cloud-gateway-ft
+          ports:
+            - containerPort: 9090
+          env:
+            - name: EUREKA_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: EUREKA_ADDRESS
+                  name: eureka-cm
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloud-gateway-svc
+spec:
+  type: LoadBalancer
+  selector:
+    app: cloud-gateway-ft
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9090
+  

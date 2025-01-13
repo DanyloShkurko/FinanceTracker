@@ -53,7 +53,7 @@ jib {
 	}
 	container {
 		jvmFlags = listOf("-Xms512m", "-Xmx1024m")
-		ports = listOf("8761")
+		ports = listOf("9296")
 		mainClass = "com.example.config_server.ConfigServerApplication"
 	}
 }

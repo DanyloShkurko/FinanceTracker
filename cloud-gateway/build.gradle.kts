@@ -43,19 +43,31 @@ dependencyManagement {
     }
 }
 
-jib{
+jib {
     from {
-        image = "openjdk:21-jdk-slim"
+        image = "eclipse-temurin:21-jdk-alpine"
+
+        platforms {
+            platform {
+                architecture = "arm64"
+                os = "linux"
+            }
+        }
     }
     to {
-        image = "registry.hub.docker.com/"+System.getenv("DOCKER_USERNAME")+"/cloud-gateway-ft"
+        image = "registry.hub.docker.com/${System.getenv("DOCKER_USERNAME")}/cloud-gateway-ft"
         auth {
             username = System.getenv("DOCKER_USERNAME") ?: "<default-username>"
             password = System.getenv("DOCKER_PASSWORD") ?: "<default-password>"
         }
-
+    }
+    container {
+        jvmFlags = listOf("-Xms512m", "-Xmx1024m")
+        ports = listOf("9090")
+        mainClass = "org.example.cloudgateway.CloudGatewayApplication"
     }
 }
+
 
 tasks.withType<Test> {
     useJUnitPlatform()
