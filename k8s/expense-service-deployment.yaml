@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: expense-tracker-ft
+  labels:
+    app: expense-tracker-ft
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: expense-tracker-ft
+  template:
+    metadata:
+      name: expense-tracker-ft
+      labels:
+        app: expense-tracker-ft
+    spec:
+      containers:
+        - name: expense-tracker-ft
+          image: danil2110/expense-tracker-ft
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: EUREKA_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: EUREKA_ADDRESS
+                  name: eureka-cm
+            - name: CONFIG_SERVER_URI
+              valueFrom:
+                configMapKeyRef:
+                  key: config_url
+                  name: config-cm
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: expense-tracker-svc
+spec:
+  selector:
+    app: expense-tracker-ft
+  ports:
+    - port: 80
+      targetPort: 8080

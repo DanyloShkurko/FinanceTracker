@@ -4,3 +4,12 @@ metadata:
   name: eureka-cm
 data:
   EUREKA_ADDRESS: "http://eureka-server-ft:8761/eureka"
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-cm
+data:
+  config_url: "http://config-server-svc-ft"

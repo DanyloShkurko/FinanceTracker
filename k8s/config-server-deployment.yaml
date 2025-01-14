@@ -18,7 +18,7 @@ spec:
       containers:
         - name: config-server-ft
           image: danil2110/config-server-ft
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 9296
           env:
@@ -38,8 +38,6 @@ spec:
   selector:
     app: config-server-ft
   ports:
-    - protocol: TCP
-      port: 80
+    - port: 80
       targetPort: 9296
-  type: NodePort
   
