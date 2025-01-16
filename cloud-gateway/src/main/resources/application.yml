@@ -37,8 +37,8 @@ spring:
             key-resolver: "#{@remoteAddressResolver}"
   data:
     redis:
-      host: localhost
-      port: ${REDIS_PORT:6379}
+      host: redis
+      port: 6379
 
 jwt:
   secret: 24b2eb99d299917874343b569d70c9805cc12135ca962235ee5d34552d84073e

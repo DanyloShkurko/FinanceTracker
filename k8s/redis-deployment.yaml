@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-app
+  labels:
+    app: redis-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-app
+  template:
+    metadata:
+      name: redis-app
+      labels:
+        app: redis-app
+    spec:
+      containers:
+        - name: redis-app
+          image: redis:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 6379
+          command:
+            - "redis-server"
+          args:
+            - "--protected-mode"
+            - "no"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  selector:
+    app: redis-app
+  ports:
+    - port: 6379
+      targetPort: 6379
