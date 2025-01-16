@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service-ft
+  labels:
+    app: user-service-ft
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service-ft
+  template:
+    metadata:
+      name: user-service-ft
+      labels:
+        app: user-service-ft
+    spec:
+      containers:
+        - name: user-service-ft
+          image: danil2110/user-service-ft
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+          env:
+            - name: EUREKA_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: EUREKA_ADDRESS
+                  name: eureka-cm
+
+            - name: CONFIG_SERVER_URI
+              valueFrom:
+                configMapKeyRef:
+                  key: config_url
+                  name: config-cm
+
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: hostname
+                  name: psql-cm
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service-svc
+spec:
+  selector:
+    app: user-service-ft
+  ports:
+    - port: 80
+      targetPort: 8081
