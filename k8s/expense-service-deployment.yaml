@@ -32,6 +32,11 @@ spec:
                 configMapKeyRef:
                   key: config_url
                   name: config-cm
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: hostname
+                  name: psql-cm
 
 ---
 

@@ -13,3 +13,13 @@ metadata:
   name: config-cm
 data:
   config_url: "http://config-server-svc-ft"
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: psql-cm
+data:
+  hostname: "psql-0.psql"
+  
