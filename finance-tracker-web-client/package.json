@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "docker:build": "docker build -t finance-tracker-web-client .",
+    "docker:run": "docker run -p 5173:80 finance-tracker-web-client"
   },
   "dependencies": {
     "bootstrap": "^5.3.3",

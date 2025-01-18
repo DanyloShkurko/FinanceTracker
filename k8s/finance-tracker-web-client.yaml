@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ft-web-client
+  labels:
+    app: ft-web-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ft-web-client
+  template:
+    metadata:
+      name: ft-web-client
+      labels:
+        app: ft-web-client
+    spec:
+      containers:
+        - name: ft-web-client
+          image: danil2110/finance-tracker-web-client
+          ports:
+            - containerPort: 5173
+          env:
+            - name: REACT_APP_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: cloud_gateway_url
+                  name: cloud-gateway
+      restartPolicy: Always
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ft-web-client-svc
+spec:
+  selector:
+    app: ft-web-client-svc
+  ports:
+    - port: 80
+      targetPort: 5173
+      nodePort: 30000
+  type: NodePort

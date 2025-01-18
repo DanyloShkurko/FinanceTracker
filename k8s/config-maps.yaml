@@ -23,3 +23,12 @@ metadata:
 data:
   hostname: "psql-0.psql"
   
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloud-gateway
+data:
+  cloud_gateway_url: "http://cloud-gateway-svc"
+  
