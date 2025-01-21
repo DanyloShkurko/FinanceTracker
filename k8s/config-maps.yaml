@@ -31,4 +31,12 @@ metadata:
   name: cloud-gateway
 data:
   cloud_gateway_url: "http://cloud-gateway-svc"
-  
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-url-cm
+data:
+  frontend_url: "http://ft-web-cient-svc"

@@ -21,6 +21,9 @@ function AuthenticatedRoute({ children }: { children: ReactNode }) {
         return <Navigate to="/login" />;
     }
 
+    console.log(import.meta.env.VITE_API_URL);
+    console.log(import.meta.env.VITE_API_URL);
+
     return <>{children}</>;
 }
 

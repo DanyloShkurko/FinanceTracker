@@ -27,6 +27,12 @@ spec:
                   key: EUREKA_ADDRESS
                   name: eureka-cm
 
+            - name: FRONTEND_URI
+              valueFrom:
+                configMapKeyRef:
+                  key: frontend_url
+                  name: frontend-url-cm
+
 ---
 
 apiVersion: v1

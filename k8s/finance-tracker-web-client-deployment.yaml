@@ -11,7 +11,6 @@ spec:
       app: ft-web-client
   template:
     metadata:
-      name: ft-web-client
       labels:
         app: ft-web-client
     spec:
@@ -21,12 +20,8 @@ spec:
           ports:
             - containerPort: 5173
           env:
-            - name: REACT_APP_API_URL
-              valueFrom:
-                configMapKeyRef:
-                  key: cloud_gateway_url
-                  name: cloud-gateway
-      restartPolicy: Always
+            - name: VITE_API_URL
+              value: "http://cloud-gateway-svc"
 
 ---
 
@@ -36,9 +31,8 @@ metadata:
   name: ft-web-client-svc
 spec:
   selector:
-    app: ft-web-client-svc
+    app: ft-web-client
   ports:
     - port: 80
       targetPort: 5173
-      nodePort: 30000
   type: NodePort
