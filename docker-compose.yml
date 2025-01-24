@@ -79,7 +79,7 @@ services:
     depends_on:
       - eureka-server
     environment:
-      - EUREKA_ADDRESS=http://localhost:8761/eureka
+      - EUREKA_ADDRESS=http://eureka-server:8761/eureka
     ports:
       - "9296:9296"
     volumes:
@@ -101,7 +101,7 @@ services:
       - HOST_NAME=localhost
       - REACT_PORT=5173
       - REDIS_PORT=6379
-      - EUREKA_ADDRESS=http://localhost:8761/eureka
+      - EUREKA_ADDRESS=http://eureka-server:8761/eureka
     volumes:
       - ./logs:/logs
     restart: unless-stopped
@@ -123,7 +123,7 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_HOST=postgres-db
       - POSTGRES_PORT=5432
-      - EUREKA_ADDRESS=http://localhost:8761/eureka
+      - EUREKA_ADDRESS=http://eureka-server:8761/eureka
       - JWT_SECRET=24b2eb99d299917874343b569d70c9805cc12135ca962235ee5d34552d84073e
       - CONFIG_SERVER_URI=http://config-server:9296
     volumes:
@@ -147,7 +147,7 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_HOST=postgres-db
       - POSTGRES_PORT=5432
-      - EUREKA_ADDRESS=http://localhost:8761/eureka
+      - EUREKA_ADDRESS=http://eureka-server:8761/eureka
       - JWT_SECRET=24b2eb99d299917874343b569d70c9805cc12135ca962235ee5d34552d84073e
       - CONFIG_SERVER_URI=http://config-server:9296
     volumes:
